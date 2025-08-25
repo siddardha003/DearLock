@@ -1,0 +1,139 @@
+/* Dear Lock - Signup Page Styles */
+@import url('login.css');
+
+.auth-card {
+  max-width: 500px;
+}
+
+.password-strength {
+  margin-top: 0.5rem;
+}
+
+.strength-bar {
+  height: 4px;
+  background: var(--jet);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.strength-fill {
+  height: 100%;
+  background: var(--bittersweet-shimmer);
+  width: 0%;
+  transition: var(--transition-1);
+  border-radius: 2px;
+}
+
+.strength-fill.weak {
+  background: var(--bittersweet-shimmer);
+  width: 25%;
+}
+
+.strength-fill.fair {
+  background: var(--vegas-gold);
+  width: 50%;
+}
+
+.strength-fill.good {
+  background: var(--orange-yellow-crayola);
+  width: 75%;
+}
+
+.strength-fill.strong {
+  background: hsl(120, 60%, 50%);
+  width: 100%;
+}
+
+.strength-text {
+  font-size: var(--fs-9);
+  color: var(--light-gray-70);
+}
+
+.strength-text.weak {
+  color: var(--bittersweet-shimmer);
+}
+
+.strength-text.fair {
+  color: var(--vegas-gold);
+}
+
+.strength-text.good {
+  color: var(--orange-yellow-crayola);
+}
+
+.strength-text.strong {
+  color: hsl(120, 60%, 50%);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+
+.checkbox-input {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--jet);
+  border-radius: 4px;
+  background: var(--onyx);
+  cursor: pointer;
+  transition: var(--transition-1);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.checkbox-input:checked {
+  background: var(--orange-yellow-crayola);
+  border-color: var(--orange-yellow-crayola);
+}
+
+.checkbox-input:checked::after {
+  content: '✓';
+  display: block;
+  color: var(--eerie-black-1);
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 16px;
+}
+
+.checkbox-label {
+  color: var(--light-gray);
+  font-size: var(--fs-9);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.checkbox-label a {
+  color: var(--orange-yellow-crayola);
+  text-decoration: none;
+}
+
+.checkbox-label a:hover {
+  color: var(--vegas-gold);
+  text-decoration: underline;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.success-message {
+  color: hsl(120, 60%, 50%);
+  font-size: var(--fs-9);
+  margin-top: 0.3rem;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
