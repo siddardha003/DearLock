@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do - Dear Lock</title>
+    <link rel="stylesheet" href="css/todo.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="dashboard-header">
+        <!-- Back to Dashboard -->
+        <button class="back-btn" onclick="window.location.href='dashboard.html'" title="Back to Dashboard">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.42-1.41L7.83 13H20v-2z"/>
+            </svg>
+            <span>Home</span>
+        </button>
+
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <button class="profile-btn" id="profileBtn">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+            </button>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="dropdown-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 9h-6v10h6V11zm-8 0H7V9h6v2zm0 2v8H7v-8h6z"/>
+                    </svg>
+                    Profile Settings
+                </div>
+                <div class="dropdown-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                    </svg>
+                    Settings
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item logout" id="logoutBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                    </svg>
+                    Sign Out
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search and Filter Bar -->
+    <div class="search-filter-bar">
+        <div class="search-container">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+            <input type="text" id="searchInput" placeholder="Search to-do lists..." />
+        </div>
+        
+        <div class="filter-options">
+            <button class="filter-btn active" data-filter="all" id="filterAll">All</button>
+            <button class="filter-btn" data-filter="in-progress" id="filterInProgress">In Progress</button>
+            <button class="filter-btn" data-filter="completed" id="filterCompleted">Completed</button>
+            <button class="filter-btn" data-filter="overdue" id="filterOverdue">Overdue</button>
+            <button class="view-toggle" id="viewToggle" title="Toggle View">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="todo-main">
+        <!-- Active To-Do Lists Section -->
+        <section class="active-section" id="activeSection">
+            <h2 class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z"/>
+                </svg>
+                Active Lists
+                <span class="count" id="activeCount">0</span>
+            </h2>
+            <div class="todo-grid" id="activeTodos">
+                <!-- Active to-do lists will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Completed To-Do Lists Section -->
+        <section class="completed-section" id="completedSection">
+            <h2 class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>
+                </svg>
+                Completed Lists
+                <span class="count" id="completedCount">0</span>
+            </h2>
+            <div class="todo-grid" id="completedTodos">
+                <!-- Completed to-do lists will be populated by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Add Button -->
+    <button class="floating-add-btn" id="addTodoBtn" title="Create new to-do list">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+    </button>
+
+    <!-- To-Do Creation Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="todo-modal" id="todoModal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Create New To-Do List</h3>
+                <button class="close-btn" id="closeModal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- To-Do Content -->
+                <div class="todo-content">
+                    <div class="input-group">
+                        <label for="todoTitle">List Title</label>
+                        <input type="text" id="todoTitle" placeholder="Enter list title..." class="todo-title-input">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="todoDescription">Description (Optional)</label>
+                        <textarea id="todoDescription" placeholder="Add description..." class="todo-description-input"></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Theme Color</label>
+                        <div class="theme-options">
+                            <button type="button" class="theme-btn active" data-theme="default">
+                                <div class="theme-preview default"></div>
+                                <span>Default</span>
+                            </button>
+                            <button type="button" class="theme-btn" data-theme="blue">
+                                <div class="theme-preview blue"></div>
+                                <span>Blue</span>
+                            </button>
+                            <button type="button" class="theme-btn" data-theme="green">
+                                <div class="theme-preview green"></div>
+                                <span>Green</span>
+                            </button>
+                            <button type="button" class="theme-btn" data-theme="purple">
+                                <div class="theme-preview purple"></div>
+                                <span>Purple</span>
+                            </button>
+                            <button type="button" class="theme-btn" data-theme="red">
+                                <div class="theme-preview red"></div>
+                                <span>Red</span>
+                            </button>
+                            <button type="button" class="theme-btn" data-theme="orange">
+                                <div class="theme-preview orange"></div>
+                                <span>Orange</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="dueDate">Due Date (Optional)</label>
+                        <input type="date" id="dueDate" class="due-date-input">
+                    </div>
+
+                    <!-- Tasks Section -->
+                    <div class="input-group">
+                        <label>Tasks</label>
+                        <div class="tasks-container" id="tasksContainer">
+                            <div class="task-input-item">
+                                <input type="text" placeholder="Enter task..." class="task-input">
+                                <button type="button" class="remove-task-btn" style="display: none;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-task-btn" id="addTaskBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            Add Task
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+                <button type="button" class="btn-primary" id="saveTodoBtn">Save To-Do List</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item" onclick="window.location.href='notes.html'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            <span>Notes</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='reminders.html'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+            </svg>
+            <span>Reminders</span>
+        </button>
+        <button class="nav-item active" onclick="window.location.href='todo.html'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z"/>
+            </svg>
+            <span>To Do</span>
+        </button>
+    </nav>
+
+    <script src="js/todo.js"></script>
+</body>
+</html>

@@ -58,9 +58,9 @@ body {
     font-family: var(--ff-poppins);
     background: linear-gradient(
         135deg,
-        hsla(240, 9%, 37%, 0.8),
-        hsla(44, 46%, 68%, 0.6)
-    ), url('../images/bg2.png') no-repeat center center;
+        hsla(20, 14%, 9%, 0.8),
+        hsla(30, 3%, 12%, 0.6)
+    );
     background-size: cover;
     background-attachment: fixed;
     color: var(--white-1);
@@ -72,15 +72,12 @@ body {
 .dashboard-header {
     position: fixed;
     top: 0;
-    left: 0;
-    right: 0;
+    left: 160px;
+    right: 200px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 1030px;
     padding: 1rem 2rem;
-    background: hsla(240, 2%, 11%, 0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid hsla(0, 0%, 25%, 0.2);
     z-index: 1000;
     height: 70px;
 }
@@ -351,14 +348,15 @@ body {
 /* Bottom Navigation */
 .bottom-nav {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 10px;
+    left: 200px;
+    right: 200px;
     display: flex;
     background: var(--eerie-black-2);
     border-top: 1px solid hsla(0, 0%, 25%, 0.2);
-    padding: 1rem;
     z-index: 1000;
+    border-radius: 10px;
+
 }
 
 .nav-item {
@@ -375,6 +373,8 @@ body {
     border-radius: var(--radius-12);
     transition: var(--transition-1);
     font-family: inherit;
+
+
 }
 
 .nav-item:hover {
