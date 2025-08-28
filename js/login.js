@@ -58,6 +58,7 @@ function handleLoginSubmit(e) {
     if (email === 'demo@dearlock.com' && password === 'demo123') {
       // Set login state in localStorage
       localStorage.setItem('isLoggedIn', 'true');
+
       showSuccess('Login successful! Redirecting...');
       setTimeout(() => {
         // Redirect to dashboard (will be created later)
