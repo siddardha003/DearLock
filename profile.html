@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Dear Lock</title>
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="dashboard-header">
+        <!-- Back to Dashboard -->
+        <button class="back-btn" onclick="window.location.href='dashboard.html'" title="Back to Dashboard">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.42-1.41L7.83 13H20v-2z"/>
+            </svg>
+            <span>Home</span>
+        </button>
+
+
+        <!-- Settings Button -->
+        <button class="settings-btn" id="settingsBtn" title="Settings">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+            </svg>
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="profile-main">
+        <!-- Profile Overview Section -->
+        <section class="profile-overview" id="profileOverview">
+            <div class="profile-card">
+                <div class="profile-avatar-section">
+                    <div class="avatar-container" id="avatarContainer">
+                        <img src="images/bg.png" alt="Profile Avatar" id="profileAvatar" class="profile-avatar">
+                        <button class="change-avatar-btn" id="changeAvatarBtn" title="Change Avatar">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="profile-info">
+                        <h2 class="profile-name" id="profileName">Welcome Back!</h2>
+                        <p class="profile-description" id="profileDescription">Your personal productivity space</p>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <span class="stat-number" id="totalTasks">0</span>
+                                <span class="stat-label">Total Tasks</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number" id="completedTasks">0</span>
+                                <span class="stat-label">Completed</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number" id="completionRate">0%</span>
+                                <span class="stat-label">Success Rate</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="edit-profile-btn" id="editProfileBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                    Edit Profile
+                </button>
+            </div>
+        </section>
+
+        <!-- Analytics Dashboard -->
+        <section class="analytics-section">
+            <h3 class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16,11V3H8v6H2v12h20V11H16z M10,5h4v14h-4V5z M4,11h4v8H4V11z M20,19h-4v-6h4V19z"/>
+                </svg>
+                Your Analytics
+            </h3>
+            <div class="analytics-grid">
+                <!-- Productivity Chart -->
+                <div class="analytics-card">
+                    <div class="card-header">
+                        <h4>Weekly Productivity</h4>
+                        <div class="trend-indicator" id="productivityTrend">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+                            </svg>
+                            <span>+12%</span>
+                        </div>
+                    </div>
+                    <div class="progress-chart" id="weeklyChart">
+                        <!-- Weekly bars will be generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Task Breakdown -->
+                <div class="analytics-card">
+                    <div class="card-header">
+                        <h4>Task Breakdown</h4>
+                        <select class="time-filter" id="timeFilter">
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="all">All Time</option>
+                        </select>
+                    </div>
+                    <div class="breakdown-stats">
+                        <div class="breakdown-item">
+                            <div class="breakdown-icon notes">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                            </div>
+                            <div class="breakdown-info">
+                                <span class="breakdown-number" id="notesCount">0</span>
+                                <span class="breakdown-label">Notes Created</span>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-icon reminders">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+                                </svg>
+                            </div>
+                            <div class="breakdown-info">
+                                <span class="breakdown-number" id="remindersCount">0</span>
+                                <span class="breakdown-label">Reminders Set</span>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-icon todos">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z"/>
+                                </svg>
+                            </div>
+                            <div class="breakdown-info">
+                                <span class="breakdown-number" id="todosCount">0</span>
+                                <span class="breakdown-label">To-Do Lists</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievement Badges -->
+                <div class="analytics-card achievements-card">
+                    <div class="card-header">
+                        <h4>Achievements</h4>
+                        <span class="achievement-count" id="achievementCount">3/8 Unlocked</span>
+                    </div>
+                    <div class="achievements-grid" id="achievementsGrid">
+                        <!-- Achievement badges will be generated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="activity-section">
+            <h3 class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M13,3A9,9 0 0,0 4,12H1L4.89,15.89L8.78,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z"/>
+                </svg>
+                Recent Activity
+            </h3>
+            <div class="activity-feed" id="activityFeed">
+                <!-- Activity items will be generated by JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Profile Edit Modal -->
+    <div class="modal-overlay" id="editModalOverlay">
+        <div class="profile-modal" id="profileModal">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <button class="close-btn" id="closeEditModal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <h4>Personal Information</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="editName">Display Name</label>
+                            <input type="text" id="editName" placeholder="Enter your name" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="editEmail">Email</label>
+                            <input type="email" id="editEmail" placeholder="Enter your email" class="form-input">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="editDescription">Bio</label>
+                            <textarea id="editDescription" placeholder="Tell us about yourself..." class="form-input" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avatar Selection -->
+                <div class="form-section">
+                    <h4>Choose Avatar</h4>
+                    <div class="avatar-grid" id="avatarGrid">
+                        <!-- Avatar options will be generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Preferences -->
+                <div class="form-section">
+                    <h4>Preferences</h4>
+                    <div class="preferences-grid">
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <span class="preference-title">Email Notifications</span>
+                                <span class="preference-description">Get notified about reminders and updates</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="emailNotifications">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <span class="preference-title">Desktop Notifications</span>
+                                <span class="preference-description">Show browser notifications</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="desktopNotifications">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <span class="preference-title">Dark Mode</span>
+                                <span class="preference-description">Use dark theme (always on)</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="darkMode" checked disabled>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancelEditBtn">Cancel</button>
+                <button type="button" class="btn-primary" id="saveProfileBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avatar Selection Modal -->
+    <div class="modal-overlay" id="avatarModalOverlay">
+        <div class="avatar-modal" id="avatarModal">
+            <div class="modal-header">
+                <h3>Choose Your Avatar</h3>
+                <button class="close-btn" id="closeAvatarModal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="avatar-categories">
+                    <button class="category-btn active" data-category="all">All</button>
+                    <button class="category-btn" data-category="people">People</button>
+                    <button class="category-btn" data-category="animals">Animals</button>
+                    <button class="category-btn" data-category="nature">Nature</button>
+                    <button class="category-btn" data-category="objects">Objects</button>
+                </div>
+                <div class="avatar-selection-grid" id="avatarSelectionGrid">
+                    <!-- Avatar options will be generated by JS -->
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancelAvatarBtn">Cancel</button>
+                <button type="button" class="btn-primary" id="selectAvatarBtn">Select Avatar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item" onclick="window.location.href='notes.html'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            <span>Notes</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='reminders.html'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+            </svg>
+            <span>Reminders</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='todo.html'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z"/>
+            </svg>
+            <span>To Do</span>
+        </button>
+        <button class="nav-item active" onclick="window.location.href='profile.html'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+            </svg>
+            <span>Profile</span>
+        </button>
+    </nav>
+
+    <script src="js/profile.js"></script>
+</body>
+</html>

@@ -14,7 +14,8 @@
   --light-gray-70: hsla(0, 0%, 84%, 0.7);
   
   /* Accent Colors */
-  --orange-yellow-crayola: hsl(45, 100%, 72%);
+  --orange-yellow-crayola: hsl(45, 65%, 62%);
+
   --vegas-gold: hsl(45, 54%, 58%);
   --bittersweet-shimmer: hsl(0, 43%, 51%);
   
@@ -39,7 +40,8 @@
   --bg-gradient-yellow-1: linear-gradient(
     to bottom right, 
     hsl(45, 100%, 72%) 0%, 
-    hsla(36, 100%, 69%, 0.2) 50%
+    hsla(36, 100%, 63%, 0.618) 80%
+
   );
   
   --bg-gradient-yellow-2: linear-gradient(
@@ -136,7 +138,8 @@ body {
     hsla(240, 9%, 37%, 0.8),
     hsla(44, 46%, 68%, 0.6)
   ),
-  url('../images/bg2.png') no-repeat center center;
+  url('/images/bg2.png') no-repeat center center;
+
   background-size: fill;
   filter: blur(1px);
   z-index: -5;
@@ -182,13 +185,15 @@ body {
 }
 
 .hero-description {
-  font-size: var(--fs-7);
+  font-size: var(--fs-9);
+
   color: var(--light-gray-70);
   margin-bottom: 3rem;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  line-height: 1.8;
+  line-height: 1.5;
+
 }
 
 .cta-buttons {
@@ -200,7 +205,8 @@ body {
 
 .btn {
   display: inline-block;
-  padding: 1.2rem 3rem;
+  padding: 0.5rem 2.5rem;
+
   border-radius: var(--radius-24);
   text-decoration: none;
   font-weight: var(--fw-600);

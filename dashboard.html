@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Dear Lock</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="dashboard-header">
+        <!-- Secret Lock Icon -->
+        <button class="secret-lock" id="secretLock" title="Secret Area">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zM12 7c1.1 0 2 .9 2 2v2c.55 0 1 .45 1 1v3c0 .55-.45 1-1 1H10c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1V9c0-1.1.9-2 2-2zm0 1c-.55 0-1 .45-1 1v2h2V9c0-.55-.45-1-1-1z"/>
+            </svg>
+        </button>
+
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <button class="profile-btn" id="profileBtn">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+            </button>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="dropdown-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 9h-6v10h6V11zm-8 0H7V9h6v2zm0 2v8H7v-8h6z"/>
+                    </svg>
+                    Profile Settings
+                </div>
+                <div class="dropdown-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                    </svg>
+                    Settings
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item logout" id="logoutBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                    </svg>
+                    Sign Out
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <h1 class="welcome-title">Welcome back, <span class="user-name">Sarah</span></h1>
+                <p class="welcome-subtitle">Your safe space awaits</p>
+            </div>
+            <div class="quick-actions">
+                <button class="quick-btn" data-tab="notes">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    Quick Note
+                </button>
+                <button class="quick-btn" data-tab="reminders">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+                    </svg>
+                    Set Reminder
+                </button>
+                <button class="quick-btn" data-tab="todo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z"/>
+                    </svg>
+                    Add Task
+                </button>
+            </div>
+        </section>
+
+        <!-- Recent Items Section -->
+        <section class="recent-section">
+            <h2 class="section-title">Recent Activity</h2>
+            <div class="recent-grid">
+                <!-- Recent Notes -->
+                <div class="recent-card notes-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                            </svg>
+                        </div>
+                        <span class="card-title">Notes</span>
+                        <span class="card-count">5</span>
+                    </div>
+                    <div class="card-items">
+                        <div class="item">
+                            <div class="item-title">Morning thoughts</div>
+                            <div class="item-time">2 hours ago</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-title">Project ideas</div>
+                            <div class="item-time">Yesterday</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-title">Weekend plans</div>
+                            <div class="item-time">2 days ago</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent To-dos -->
+                <div class="recent-card todo-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z"/>
+                            </svg>
+                        </div>
+                        <span class="card-title">Tasks</span>
+                        <span class="card-count">3</span>
+                    </div>
+                    <div class="card-items">
+                        <div class="item">
+                            <div class="item-title">Buy groceries</div>
+                            <div class="item-time">Due today</div>
+                        </div>
+                        <div class="item completed">
+                            <div class="item-title">Call dentist</div>
+                            <div class="item-time">Completed</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-title">Review presentation</div>
+                            <div class="item-time">Due tomorrow</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Reminders -->
+                <div class="recent-card reminders-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+                            </svg>
+                        </div>
+                        <span class="card-title">Reminders</span>
+                        <span class="card-count">2</span>
+                    </div>
+                    <div class="card-items">
+                        <div class="item">
+                            <div class="item-title">Team meeting</div>
+                            <div class="item-time">In 30 minutes</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-title">Mom's birthday</div>
+                            <div class="item-time">Tomorrow</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="notes" id="notesTab">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            <span>Notes</span>
+        </button>
+        <button class="nav-item" data-tab="reminders" id="remindersTab">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+            </svg>
+            <span>Reminders</span>
+        </button>
+        <button class="nav-item" data-tab="todo" id="todoTab">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z"/>
+            </svg>
+            <span>To Do</span>
+        </button>
+    </nav>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
