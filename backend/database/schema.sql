@@ -11,20 +11,19 @@ CREATE TABLE users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(100),
-    profile_image VARCHAR(255) DEFAULT 'avatar1.jpg',
-    bio TEXT,
-    favorite_color VARCHAR(7) DEFAULT '#F8F6F0', -- Default to signature cream
+    profile_icon VARCHAR(50) DEFAULT 'avatar1.jpg',
+    font_family VARCHAR(50) DEFAULT 'Inter',
+    diary_pin VARCHAR(4), -- 4 digit PIN for diary access
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Categories table - For organizing our thoughts beautifully
+-- Categories table - For organizing notes with beautiful labels
 CREATE TABLE categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     name VARCHAR(50) NOT NULL,
     color VARCHAR(7) DEFAULT '#E8B4B8', -- Default dusty rose
-    icon VARCHAR(50) DEFAULT '🌸',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE KEY unique_user_category (user_id, name)
@@ -36,17 +35,11 @@ CREATE TABLE diary_entries (
     user_id INT NOT NULL,
     title VARCHAR(200) NOT NULL,
     content LONGTEXT NOT NULL,
-    mood VARCHAR(50), -- happy, dreamy, peaceful, nostalgic, etc.
-    weather VARCHAR(50), -- sunny, rainy, cloudy, etc.
     entry_date DATE NOT NULL,
-    is_favorite BOOLEAN DEFAULT FALSE,
-    privacy_level ENUM('private', 'semi-private') DEFAULT 'private',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_user_date (user_id, entry_date),
-    INDEX idx_mood (mood),
-    INDEX idx_favorite (is_favorite)
+    INDEX idx_user_date (user_id, entry_date)
 );
 
 -- Notes table - Quick beautiful thoughts
@@ -56,45 +49,35 @@ CREATE TABLE notes (
     category_id INT,
     title VARCHAR(200) NOT NULL,
     content LONGTEXT NOT NULL,
-    note_type ENUM('text', 'list', 'idea', 'quote') DEFAULT 'text',
-    color VARCHAR(7) DEFAULT '#F4E4E6', -- Gentle pink
+    background_image VARCHAR(255), -- Path to background image
     is_pinned BOOLEAN DEFAULT FALSE,
-    tags JSON, -- Store tags as JSON array
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
     INDEX idx_user_notes (user_id),
     INDEX idx_category (category_id),
-    INDEX idx_pinned (is_pinned),
-    INDEX idx_type (note_type)
+    INDEX idx_pinned (is_pinned)
 );
 
--- Todos table - Our dreamy goals and tasks
+-- Todos table - Our simple goals and tasks
 CREATE TABLE todos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    category_id INT,
     title VARCHAR(200) NOT NULL,
     description TEXT,
+    total_steps INT DEFAULT 1, -- Total number of steps
+    completed_steps INT DEFAULT 0, -- Number of completed steps
     is_completed BOOLEAN DEFAULT FALSE,
-    priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
-    due_date DATE,
-    reminder_datetime DATETIME,
-    color VARCHAR(7) DEFAULT '#F8F6F0', -- Signature cream
-    position INT DEFAULT 0, -- For custom ordering
     completed_at DATETIME NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
     INDEX idx_user_todos (user_id),
-    INDEX idx_completed (is_completed),
-    INDEX idx_priority (priority),
-    INDEX idx_due_date (due_date)
+    INDEX idx_completed (is_completed)
 );
 
--- Images table - For our beautiful memories
+-- Images table - For note backgrounds and profile pictures
 CREATE TABLE images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -103,23 +86,21 @@ CREATE TABLE images (
     file_path VARCHAR(500) NOT NULL,
     file_size INT NOT NULL,
     mime_type VARCHAR(100) NOT NULL,
-    related_type ENUM('diary', 'note', 'profile') NOT NULL,
-    related_id INT, -- ID of diary_entry, note, or user
-    alt_text VARCHAR(255),
+    image_type ENUM('note_background', 'profile') NOT NULL,
+    related_id INT, -- ID of note or user
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_user_images (user_id),
-    INDEX idx_related (related_type, related_id)
+    INDEX idx_type_related (image_type, related_id)
 );
 
 -- Insert default categories for new users
-INSERT INTO categories (user_id, name, color, icon) VALUES 
-(1, 'Dreams', '#E8B4B8', '✨'),
-(1, 'Memories', '#F4E4E6', '🌸'),
-(1, 'Goals', '#F8F6F0', '🎯'),
-(1, 'Inspiration', '#E8B4B8', '💫'),
-(1, 'Daily Life', '#F4E4E6', '☀️');
+INSERT INTO categories (user_id, name, color) VALUES 
+(1, 'Personal', '#E8B4B8'),
+(1, 'Work', '#F4E4E6'),
+(1, 'Ideas', '#F8F6F0'),
+(1, 'Important', '#E8B4B8');
 
 -- Sample user for testing (password: 'dreamy123')
-INSERT INTO users (username, email, password_hash, full_name, bio) VALUES 
-('dreamer', 'dreamer@dearlock.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Dream Keeper', 'Living life one beautiful moment at a time 🌸✨');
+INSERT INTO users (username, email, password_hash, full_name) VALUES 
+('dreamer', 'dreamer@dearlock.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Dream Keeper');

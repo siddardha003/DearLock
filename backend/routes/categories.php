@@ -10,16 +10,12 @@ $router->addRoute('GET', '/^\/api\/categories$/', function() {
     $userId = Auth::getCurrentUserId();
     
     try {
-        $query = "SELECT c.id, c.name, c.color, c.icon, c.created_at,
-                         COUNT(DISTINCT n.id) as notes_count,
-                         COUNT(DISTINCT t.id) as todos_count,
-                         COUNT(DISTINCT d.id) as diary_count
+        $query = "SELECT c.id, c.name, c.color, c.created_at,
+                         COUNT(DISTINCT n.id) as notes_count
                   FROM categories c
                   LEFT JOIN notes n ON c.id = n.category_id AND n.user_id = :user_id
-                  LEFT JOIN todos t ON c.id = t.category_id AND t.user_id = :user_id
-                  LEFT JOIN diary_entries d ON c.id = d.id AND d.user_id = :user_id
                   WHERE c.user_id = :user_id
-                  GROUP BY c.id, c.name, c.color, c.icon, c.created_at
+                  GROUP BY c.id, c.name, c.color, c.created_at
                   ORDER BY c.name ASC";
         
         $stmt = $db->prepare($query);
@@ -31,9 +27,6 @@ $router->addRoute('GET', '/^\/api\/categories$/', function() {
         // Convert counts to integers
         foreach ($categories as &$category) {
             $category['notes_count'] = (int)$category['notes_count'];
-            $category['todos_count'] = (int)$category['todos_count'];
-            $category['diary_count'] = (int)$category['diary_count'];
-            $category['total_items'] = $category['notes_count'] + $category['todos_count'] + $category['diary_count'];
         }
         
         ApiResponse::success($categories, 'Your beautiful categories! 🏷️✨');

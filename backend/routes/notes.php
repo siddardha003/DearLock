@@ -48,9 +48,9 @@ $router->addRoute('GET', '/^\/api\/notes$/', function() {
         $total = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
         
         // Get notes with category info
-        $query = "SELECT n.id, n.title, n.content, n.note_type, n.color, n.is_pinned, 
-                         n.tags, n.created_at, n.updated_at,
-                         c.name as category_name, c.color as category_color, c.icon as category_icon
+        $query = "SELECT n.id, n.title, n.content, n.background_image, n.is_pinned, 
+                         n.created_at, n.updated_at,
+                         c.name as category_name, c.color as category_color
                   FROM notes n
                   LEFT JOIN categories c ON n.category_id = c.id
                   WHERE $whereClause
@@ -71,7 +71,6 @@ $router->addRoute('GET', '/^\/api\/notes$/', function() {
         foreach ($notes as &$note) {
             $note['content_preview'] = substr(strip_tags($note['content']), 0, 100) . '...';
             $note['is_pinned'] = (bool)$note['is_pinned'];
-            $note['tags'] = $note['tags'] ? json_decode($note['tags'], true) : [];
         }
         
         ApiResponse::success([
@@ -98,7 +97,7 @@ $router->addRoute('GET', '/^\/api\/notes\/(\d+)$/', function($noteId) {
     $userId = Auth::getCurrentUserId();
     
     try {
-        $query = "SELECT n.*, c.name as category_name, c.color as category_color, c.icon as category_icon
+        $query = "SELECT n.*, c.name as category_name, c.color as category_color
                   FROM notes n
                   LEFT JOIN categories c ON n.category_id = c.id
                   WHERE n.id = :note_id AND n.user_id = :user_id";
@@ -112,7 +111,6 @@ $router->addRoute('GET', '/^\/api\/notes\/(\d+)$/', function($noteId) {
         
         if ($note) {
             $note['is_pinned'] = (bool)$note['is_pinned'];
-            $note['tags'] = $note['tags'] ? json_decode($note['tags'], true) : [];
             ApiResponse::success($note, 'Your beautiful note! 🌸');
         } else {
             ApiResponse::error('Note not found', 404);
@@ -143,33 +141,27 @@ $router->addRoute('POST', '/^\/api\/notes$/', function() {
     $userId = Auth::getCurrentUserId();
     
     try {
-        $query = "INSERT INTO notes (user_id, category_id, title, content, note_type, color, 
-                                   is_pinned, tags) 
-                  VALUES (:user_id, :category_id, :title, :content, :note_type, :color, 
-                          :is_pinned, :tags)";
+        $query = "INSERT INTO notes (user_id, category_id, title, content, background_image, is_pinned) 
+                  VALUES (:user_id, :category_id, :title, :content, :background_image, :is_pinned)";
         
         $stmt = $db->prepare($query);
         
         $categoryId = !empty($input['category_id']) ? $input['category_id'] : null;
-        $noteType = $input['note_type'] ?? 'text';
-        $color = $input['color'] ?? '#F4E4E6'; // Gentle pink default
+        $backgroundImage = $input['background_image'] ?? null;
         $isPinned = isset($input['is_pinned']) ? (bool)$input['is_pinned'] : false;
-        $tags = isset($input['tags']) && is_array($input['tags']) ? json_encode($input['tags']) : null;
         
         $stmt->bindParam(':user_id', $userId);
         $stmt->bindParam(':category_id', $categoryId);
         $stmt->bindParam(':title', $input['title']);
         $stmt->bindParam(':content', $input['content']);
-        $stmt->bindParam(':note_type', $noteType);
-        $stmt->bindParam(':color', $color);
+        $stmt->bindParam(':background_image', $backgroundImage);
         $stmt->bindParam(':is_pinned', $isPinned, PDO::PARAM_BOOL);
-        $stmt->bindParam(':tags', $tags);
         
         if ($stmt->execute()) {
             $noteId = $db->lastInsertId();
             
             // Get the created note with category info
-            $getQuery = "SELECT n.*, c.name as category_name, c.color as category_color, c.icon as category_icon
+            $getQuery = "SELECT n.*, c.name as category_name, c.color as category_color
                          FROM notes n
                          LEFT JOIN categories c ON n.category_id = c.id
                          WHERE n.id = :note_id";
@@ -179,7 +171,6 @@ $router->addRoute('POST', '/^\/api\/notes$/', function() {
             $newNote = $getStmt->fetch(PDO::FETCH_ASSOC);
             
             $newNote['is_pinned'] = (bool)$newNote['is_pinned'];
-            $newNote['tags'] = $newNote['tags'] ? json_decode($newNote['tags'], true) : [];
             
             ApiResponse::success($newNote, 'Your beautiful note has been saved! 🌸✨', 201);
         }
@@ -222,30 +213,26 @@ $router->addRoute('PUT', '/^\/api\/notes\/(\d+)$/', function($noteId) {
         // Update the note
         $query = "UPDATE notes 
                   SET title = :title, content = :content, category_id = :category_id, 
-                      note_type = :note_type, color = :color, is_pinned = :is_pinned, tags = :tags
+                      background_image = :background_image, is_pinned = :is_pinned
                   WHERE id = :note_id AND user_id = :user_id";
         
         $stmt = $db->prepare($query);
         
         $categoryId = !empty($input['category_id']) ? $input['category_id'] : null;
-        $noteType = $input['note_type'] ?? 'text';
-        $color = $input['color'] ?? '#F4E4E6';
+        $backgroundImage = $input['background_image'] ?? null;
         $isPinned = isset($input['is_pinned']) ? (bool)$input['is_pinned'] : false;
-        $tags = isset($input['tags']) && is_array($input['tags']) ? json_encode($input['tags']) : null;
         
         $stmt->bindParam(':title', $input['title']);
         $stmt->bindParam(':content', $input['content']);
         $stmt->bindParam(':category_id', $categoryId);
-        $stmt->bindParam(':note_type', $noteType);
-        $stmt->bindParam(':color', $color);
+        $stmt->bindParam(':background_image', $backgroundImage);
         $stmt->bindParam(':is_pinned', $isPinned, PDO::PARAM_BOOL);
-        $stmt->bindParam(':tags', $tags);
         $stmt->bindParam(':note_id', $noteId);
         $stmt->bindParam(':user_id', $userId);
         
         if ($stmt->execute()) {
             // Get updated note
-            $getQuery = "SELECT n.*, c.name as category_name, c.color as category_color, c.icon as category_icon
+            $getQuery = "SELECT n.*, c.name as category_name, c.color as category_color
                          FROM notes n
                          LEFT JOIN categories c ON n.category_id = c.id
                          WHERE n.id = :note_id";
@@ -255,7 +242,6 @@ $router->addRoute('PUT', '/^\/api\/notes\/(\d+)$/', function($noteId) {
             $updatedNote = $getStmt->fetch(PDO::FETCH_ASSOC);
             
             $updatedNote['is_pinned'] = (bool)$updatedNote['is_pinned'];
-            $updatedNote['tags'] = $updatedNote['tags'] ? json_decode($updatedNote['tags'], true) : [];
             
             ApiResponse::success($updatedNote, 'Your beautiful note has been updated! 🌸');
         }
@@ -321,52 +307,6 @@ $router->addRoute('PUT', '/^\/api\/notes\/(\d+)\/pin$/', function($noteId) {
         
     } catch (PDOException $e) {
         ApiResponse::error('Failed to update pin status', 500);
-    }
-});
-
-// Search notes
-$router->addRoute('GET', '/^\/api\/notes\/search$/', function() {
-    Auth::requireAuth();
-    
-    $database = new Database();
-    $db = $database->connect();
-    $userId = Auth::getCurrentUserId();
-    
-    $query = $_GET['q'] ?? '';
-    $limit = $_GET['limit'] ?? 10;
-    
-    if (empty($query)) {
-        ApiResponse::error('Search query is required');
-    }
-    
-    try {
-        $searchQuery = "SELECT n.id, n.title, n.content, n.note_type, n.color, n.tags, n.created_at,
-                               c.name as category_name, c.color as category_color
-                        FROM notes n
-                        LEFT JOIN categories c ON n.category_id = c.id
-                        WHERE n.user_id = :user_id 
-                        AND (n.title LIKE :search OR n.content LIKE :search)
-                        ORDER BY n.updated_at DESC
-                        LIMIT :limit";
-        
-        $stmt = $db->prepare($searchQuery);
-        $searchTerm = "%$query%";
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':search', $searchTerm);
-        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        $notes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        foreach ($notes as &$note) {
-            $note['content_preview'] = substr(strip_tags($note['content']), 0, 100) . '...';
-            $note['tags'] = $note['tags'] ? json_decode($note['tags'], true) : [];
-        }
-        
-        ApiResponse::success($notes, 'Found ' . count($notes) . ' beautiful notes! 🔍✨');
-        
-    } catch (PDOException $e) {
-        ApiResponse::error('Search failed', 500);
     }
 });
 ?>

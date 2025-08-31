@@ -1,11 +1,11 @@
 <?php
 // Images Routes - For our beautiful memories and uploads
 
-// Get images for a specific item
+// Get images for a specific type and related ID
 $router->addRoute('GET', '/^\/api\/images\/(\w+)\/(\d+)$/', function($type, $relatedId) {
     Auth::requireAuth();
     
-    if (!in_array($type, ['diary', 'note', 'profile'])) {
+    if (!in_array($type, ['note_background', 'profile'])) {
         ApiResponse::error('Invalid image type');
     }
     
@@ -14,10 +14,9 @@ $router->addRoute('GET', '/^\/api\/images\/(\w+)\/(\d+)$/', function($type, $rel
     $userId = Auth::getCurrentUserId();
     
     try {
-        $query = "SELECT id, original_name, stored_name, file_path, file_size, mime_type, 
-                         alt_text, created_at
+        $query = "SELECT id, original_name, stored_name, file_path, file_size, mime_type, created_at
                   FROM images 
-                  WHERE user_id = :user_id AND related_type = :type AND related_id = :related_id
+                  WHERE user_id = :user_id AND image_type = :type AND related_id = :related_id
                   ORDER BY created_at DESC";
         
         $stmt = $db->prepare($query);
@@ -34,10 +33,42 @@ $router->addRoute('GET', '/^\/api\/images\/(\w+)\/(\d+)$/', function($type, $rel
             $image['file_size_formatted'] = formatFileSize($image['file_size']);
         }
         
-        ApiResponse::success($images, 'Your beautiful memories! 📸✨');
+        ApiResponse::success($images, 'Your beautiful images! 📸✨');
         
     } catch (PDOException $e) {
         ApiResponse::error('Failed to fetch images', 500);
+    }
+});
+
+// Get available background images for notes
+$router->addRoute('GET', '/^\/api\/images\/backgrounds$/', function() {
+    Auth::requireAuth();
+    
+    $database = new Database();
+    $db = $database->connect();
+    $userId = Auth::getCurrentUserId();
+    
+    try {
+        $query = "SELECT id, original_name, stored_name, file_path, created_at
+                  FROM images 
+                  WHERE user_id = :user_id AND image_type = 'note_background'
+                  ORDER BY created_at DESC";
+        
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->execute();
+        
+        $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Add full URL to images
+        foreach ($images as &$image) {
+            $image['url'] = '/backend/uploads/' . $image['stored_name'];
+        }
+        
+        ApiResponse::success($images, 'Available background images! �️✨');
+        
+    } catch (PDOException $e) {
+        ApiResponse::error('Failed to fetch background images', 500);
     }
 });
 
@@ -49,16 +80,15 @@ $router->addRoute('POST', '/^\/api\/images\/upload$/', function() {
         ApiResponse::error('No image uploaded or upload error occurred');
     }
     
-    if (!isset($_POST['related_type']) || !isset($_POST['related_id'])) {
-        ApiResponse::error('Related type and ID are required');
+    if (!isset($_POST['image_type']) || !isset($_POST['related_id'])) {
+        ApiResponse::error('Image type and related ID are required');
     }
     
-    $relatedType = $_POST['related_type'];
+    $imageType = $_POST['image_type'];
     $relatedId = (int)$_POST['related_id'];
-    $altText = $_POST['alt_text'] ?? '';
     
-    if (!in_array($relatedType, ['diary', 'note', 'profile'])) {
-        ApiResponse::error('Invalid related type');
+    if (!in_array($imageType, ['note_background', 'profile'])) {
+        ApiResponse::error('Invalid image type');
     }
     
     $file = $_FILES['image'];
@@ -98,9 +128,9 @@ $router->addRoute('POST', '/^\/api\/images\/upload$/', function() {
         $db = $database->connect();
         
         $query = "INSERT INTO images (user_id, original_name, stored_name, file_path, file_size, 
-                                    mime_type, related_type, related_id, alt_text) 
+                                    mime_type, image_type, related_id) 
                   VALUES (:user_id, :original_name, :stored_name, :file_path, :file_size, 
-                          :mime_type, :related_type, :related_id, :alt_text)";
+                          :mime_type, :image_type, :related_id)";
         
         $stmt = $db->prepare($query);
         $stmt->bindParam(':user_id', $userId);
@@ -109,9 +139,8 @@ $router->addRoute('POST', '/^\/api\/images\/upload$/', function() {
         $stmt->bindParam(':file_path', $filePath);
         $stmt->bindParam(':file_size', $file['size']);
         $stmt->bindParam(':mime_type', $file['type']);
-        $stmt->bindParam(':related_type', $relatedType);
+        $stmt->bindParam(':image_type', $imageType);
         $stmt->bindParam(':related_id', $relatedId);
-        $stmt->bindParam(':alt_text', $altText);
         
         if ($stmt->execute()) {
             $imageId = $db->lastInsertId();

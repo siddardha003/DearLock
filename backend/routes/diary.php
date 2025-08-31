@@ -1,9 +1,41 @@
 <?php
-// Diary Routes - For our most precious thoughts and memories
+// Diary Routes - For our most precious thoughts and memories (PIN protected)
+
+// Helper function to check diary access
+function checkDiaryAccess() {
+    Auth::requireAuth();
+    
+    $database = new Database();
+    $db = $database->connect();
+    $userId = Auth::getCurrentUserId();
+    
+    try {
+        $query = "SELECT diary_pin FROM users WHERE id = :user_id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // If no PIN is set, allow access
+        if (!$user['diary_pin']) {
+            return true;
+        }
+        
+        // Check if user has access in current session (valid for 1 hour)
+        if (isset($_SESSION['diary_access']) && (time() - $_SESSION['diary_access']) < 3600) {
+            return true;
+        }
+        
+        ApiResponse::error('Diary access denied. Please enter your PIN.', 403);
+        
+    } catch (PDOException $e) {
+        ApiResponse::error('Failed to check diary access', 500);
+    }
+}
 
 // Get all diary entries
 $router->addRoute('GET', '/^\/api\/diary$/', function() {
-    Auth::requireAuth();
+    checkDiaryAccess();
     
     $database = new Database();
     $db = $database->connect();
@@ -22,8 +54,7 @@ $router->addRoute('GET', '/^\/api\/diary$/', function() {
         $total = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
         
         // Get entries with pagination
-        $query = "SELECT id, title, content, mood, weather, entry_date, is_favorite, 
-                         privacy_level, created_at, updated_at 
+        $query = "SELECT id, title, content, entry_date, created_at, updated_at 
                   FROM diary_entries 
                   WHERE user_id = :user_id 
                   ORDER BY entry_date DESC, created_at DESC 
@@ -40,7 +71,6 @@ $router->addRoute('GET', '/^\/api\/diary$/', function() {
         // Format entries for frontend
         foreach ($entries as &$entry) {
             $entry['content_preview'] = substr(strip_tags($entry['content']), 0, 150) . '...';
-            $entry['is_favorite'] = (bool)$entry['is_favorite'];
         }
         
         ApiResponse::success([
@@ -60,15 +90,14 @@ $router->addRoute('GET', '/^\/api\/diary$/', function() {
 
 // Get single diary entry
 $router->addRoute('GET', '/^\/api\/diary\/(\d+)$/', function($entryId) {
-    Auth::requireAuth();
+    checkDiaryAccess();
     
     $database = new Database();
     $db = $database->connect();
     $userId = Auth::getCurrentUserId();
     
     try {
-        $query = "SELECT id, title, content, mood, weather, entry_date, is_favorite, 
-                         privacy_level, created_at, updated_at 
+        $query = "SELECT id, title, content, entry_date, created_at, updated_at 
                   FROM diary_entries 
                   WHERE id = :entry_id AND user_id = :user_id";
         
@@ -80,7 +109,6 @@ $router->addRoute('GET', '/^\/api\/diary\/(\d+)$/', function($entryId) {
         $entry = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($entry) {
-            $entry['is_favorite'] = (bool)$entry['is_favorite'];
             ApiResponse::success($entry, 'Your precious memory 🌸');
         } else {
             ApiResponse::error('Diary entry not found', 404);
@@ -93,7 +121,7 @@ $router->addRoute('GET', '/^\/api\/diary\/(\d+)$/', function($entryId) {
 
 // Create new diary entry
 $router->addRoute('POST', '/^\/api\/diary$/', function() {
-    Auth::requireAuth();
+    checkDiaryAccess();
     
     $input = json_decode(file_get_contents('php://input'), true);
     
@@ -111,27 +139,17 @@ $router->addRoute('POST', '/^\/api\/diary$/', function() {
     $userId = Auth::getCurrentUserId();
     
     try {
-        $query = "INSERT INTO diary_entries (user_id, title, content, mood, weather, entry_date, 
-                                           is_favorite, privacy_level) 
-                  VALUES (:user_id, :title, :content, :mood, :weather, :entry_date, 
-                          :is_favorite, :privacy_level)";
+        $query = "INSERT INTO diary_entries (user_id, title, content, entry_date) 
+                  VALUES (:user_id, :title, :content, :entry_date)";
         
         $stmt = $db->prepare($query);
         
         $entryDate = $input['entry_date'] ?? date('Y-m-d');
-        $mood = $input['mood'] ?? null;
-        $weather = $input['weather'] ?? null;
-        $isFavorite = isset($input['is_favorite']) ? (bool)$input['is_favorite'] : false;
-        $privacyLevel = $input['privacy_level'] ?? 'private';
         
         $stmt->bindParam(':user_id', $userId);
         $stmt->bindParam(':title', $input['title']);
         $stmt->bindParam(':content', $input['content']);
-        $stmt->bindParam(':mood', $mood);
-        $stmt->bindParam(':weather', $weather);
         $stmt->bindParam(':entry_date', $entryDate);
-        $stmt->bindParam(':is_favorite', $isFavorite, PDO::PARAM_BOOL);
-        $stmt->bindParam(':privacy_level', $privacyLevel);
         
         if ($stmt->execute()) {
             $entryId = $db->lastInsertId();
@@ -142,7 +160,6 @@ $router->addRoute('POST', '/^\/api\/diary$/', function() {
             $getStmt->bindParam(':entry_id', $entryId);
             $getStmt->execute();
             $newEntry = $getStmt->fetch(PDO::FETCH_ASSOC);
-            $newEntry['is_favorite'] = (bool)$newEntry['is_favorite'];
             
             ApiResponse::success($newEntry, 'Your beautiful thoughts have been saved! 🌸✨', 201);
         }
@@ -154,7 +171,7 @@ $router->addRoute('POST', '/^\/api\/diary$/', function() {
 
 // Update diary entry
 $router->addRoute('PUT', '/^\/api\/diary\/(\d+)$/', function($entryId) {
-    Auth::requireAuth();
+    checkDiaryAccess();
     
     $input = json_decode(file_get_contents('php://input'), true);
     
@@ -184,25 +201,16 @@ $router->addRoute('PUT', '/^\/api\/diary\/(\d+)$/', function($entryId) {
         
         // Update the entry
         $query = "UPDATE diary_entries 
-                  SET title = :title, content = :content, mood = :mood, weather = :weather, 
-                      entry_date = :entry_date, is_favorite = :is_favorite, privacy_level = :privacy_level 
+                  SET title = :title, content = :content, entry_date = :entry_date
                   WHERE id = :entry_id AND user_id = :user_id";
         
         $stmt = $db->prepare($query);
         
         $entryDate = $input['entry_date'] ?? date('Y-m-d');
-        $mood = $input['mood'] ?? null;
-        $weather = $input['weather'] ?? null;
-        $isFavorite = isset($input['is_favorite']) ? (bool)$input['is_favorite'] : false;
-        $privacyLevel = $input['privacy_level'] ?? 'private';
         
         $stmt->bindParam(':title', $input['title']);
         $stmt->bindParam(':content', $input['content']);
-        $stmt->bindParam(':mood', $mood);
-        $stmt->bindParam(':weather', $weather);
         $stmt->bindParam(':entry_date', $entryDate);
-        $stmt->bindParam(':is_favorite', $isFavorite, PDO::PARAM_BOOL);
-        $stmt->bindParam(':privacy_level', $privacyLevel);
         $stmt->bindParam(':entry_id', $entryId);
         $stmt->bindParam(':user_id', $userId);
         
@@ -213,7 +221,6 @@ $router->addRoute('PUT', '/^\/api\/diary\/(\d+)$/', function($entryId) {
             $getStmt->bindParam(':entry_id', $entryId);
             $getStmt->execute();
             $updatedEntry = $getStmt->fetch(PDO::FETCH_ASSOC);
-            $updatedEntry['is_favorite'] = (bool)$updatedEntry['is_favorite'];
             
             ApiResponse::success($updatedEntry, 'Your precious thoughts have been updated! 🌸');
         }
@@ -225,7 +232,7 @@ $router->addRoute('PUT', '/^\/api\/diary\/(\d+)$/', function($entryId) {
 
 // Delete diary entry
 $router->addRoute('DELETE', '/^\/api\/diary\/(\d+)$/', function($entryId) {
-    Auth::requireAuth();
+    checkDiaryAccess();
     
     $database = new Database();
     $db = $database->connect();
@@ -247,14 +254,7 @@ $router->addRoute('DELETE', '/^\/api\/diary\/(\d+)$/', function($entryId) {
         ApiResponse::error('Failed to delete diary entry', 500);
     }
 });
-
-// Toggle favorite status
-$router->addRoute('PUT', '/^\/api\/diary\/(\d+)\/favorite$/', function($entryId) {
-    Auth::requireAuth();
-    
-    $database = new Database();
-    $db = $database->connect();
-    $userId = Auth::getCurrentUserId();
+?>
     
     try {
         $query = "UPDATE diary_entries SET is_favorite = NOT is_favorite 
