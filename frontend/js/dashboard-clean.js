@@ -25,7 +25,7 @@ function checkAuthStatus() {
     
     try {
         const userData = JSON.parse(user);
-        document.getElementById('userGreeting').textContent = `Hello, ${userData.full_name || userData.username || 'User'}!`;
+        document.getElementById('userGreeting').textContent = `Hello, ${userData.name}!`;
     } catch (e) {
         console.error('Error parsing user data:', e);
     }
@@ -36,7 +36,7 @@ function loadUserData() {
     const user = localStorage.getItem('user');
     if (user) {
         const userData = JSON.parse(user);
-        document.getElementById('userGreeting').textContent = `Hello, ${userData.full_name || userData.username || 'User'}!`;
+        document.getElementById('userGreeting').textContent = `Hello, ${userData.name}!`;
     }
 }
 

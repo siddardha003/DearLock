@@ -782,7 +782,7 @@
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 400px) {
     .notes-main {
         padding: 5.5rem 1rem 6rem;
     }

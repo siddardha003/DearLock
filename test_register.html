@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Registration</title>
+</head>
+<body>
+    <h2>Test Registration</h2>
+    <button onclick="testRegistration()">Test Register User</button>
+    <div id="result"></div>
+
+    <script>
+    async function testRegistration() {
+        const testData = {
+            username: 'testuser_' + Date.now(),
+            email: 'test_' + Date.now() + '@example.com',
+            password: 'TestPassword123!',
+            confirm_password: 'TestPassword123!'
+        };
+
+        try {
+            const response = await fetch('../backend/api/auth/register.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(testData)
+            });
+
+            const result = await response.json();
+            document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            
+            if (result.success) {
+                console.log('Registration successful!', result);
+            } else {
+                console.error('Registration failed:', result);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('result').innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+        }
+    }
+    </script>
+</body>
+</html>

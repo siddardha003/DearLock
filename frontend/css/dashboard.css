@@ -433,7 +433,7 @@ body {
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 400px) {
     .welcome-section {
         padding: 1.5rem;
     }

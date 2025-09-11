@@ -557,71 +557,6 @@ body {
     background-color: #d6a0a4;
 }
 
-/* Modal Styles */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background-color: var(--white);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    width: 90%;
-    max-width: 400px;
-}
-
-.modal-content h3 {
-    color: var(--dusty-rose);
-    margin-bottom: 20px;
-    font-size: 20px;
-}
-
-/* Dashboard Styles */
-.dashboard-card {
-    background-color: var(--white);
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid var(--border);
-}
-
-.dashboard-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
-}
-
-.dashboard-card h3 {
-    color: var(--text-dark);
-    font-size: 16px;
-    margin: 10px 0 5px 0;
-}
-
-.dashboard-card p {
-    color: var(--text-light);
-    font-size: 14px;
-    margin: 0;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
 /* Utility Classes */
 .hidden {
     display: none !important;
@@ -655,11 +590,4 @@ body {
     .mobile-app {
         padding: 0;
     }
-}
-
-/* Animations */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
 }

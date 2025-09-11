@@ -1,4 +1,5 @@
 <?php
+// Simple API configuration without router
 // Start session with secure settings
 session_start([
     'cookie_lifetime' => 86400, // 24 hours
@@ -9,7 +10,7 @@ session_start([
 
 // Set headers for API responses
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *'); // Configure properly in production
+header('Access-Control-Allow-Origin: http://localhost'); // Changed from * to specific origin
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
@@ -93,54 +94,4 @@ class Validator {
         return strlen(trim($value)) <= $length;
     }
 }
-
-// Router class for handling API endpoints
-class Router {
-    private $routes = [];
-    
-    public function addRoute($method, $pattern, $handler) {
-        $this->routes[] = [
-            'method' => strtoupper($method),
-            'pattern' => $pattern,
-            'handler' => $handler
-        ];
-    }
-    
-    public function handleRequest() {
-        $method = $_SERVER['REQUEST_METHOD'];
-        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        
-        // Remove /DearLock/backend from path if present
-        $path = str_replace('/DearLock/backend', '', $path);
-        // Remove /backend from path if present
-        $path = str_replace('/backend', '', $path);
-        
-        foreach ($this->routes as $route) {
-            if ($route['method'] === $method) {
-                if (preg_match($route['pattern'], $path, $matches)) {
-                    array_shift($matches); // Remove full match
-                    call_user_func_array($route['handler'], $matches);
-                    return;
-                }
-            }
-        }
-        
-        // Route not found
-        ApiResponse::error('Endpoint not found', 404);
-    }
-}
-
-// Initialize router
-$router = new Router();
-
-// Include route definitions
-require_once __DIR__ . '/routes/auth.php';
-require_once __DIR__ . '/routes/diary.php';
-require_once __DIR__ . '/routes/notes.php';
-require_once __DIR__ . '/routes/todos.php';
-require_once __DIR__ . '/routes/categories.php';
-require_once __DIR__ . '/routes/images.php';
-
-// Handle the request
-$router->handleRequest();
 ?>

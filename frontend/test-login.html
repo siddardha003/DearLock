@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Test</title>
+</head>
+<body>
+    <h2>Login Test</h2>
+    <button onclick="testLogin()">Test Login</button>
+    <button onclick="testMe()">Test Me</button>
+    <div id="results"></div>
+
+    <script>
+        async function testLogin() {
+            const results = document.getElementById('results');
+            results.innerHTML = 'Testing login...';
+            
+            try {
+                const response = await fetch('../backend/api/auth/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: 'test3@example.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const result = await response.json();
+                results.innerHTML = '<h3>Login Result:</h3><pre>' + JSON.stringify(result, null, 2) + '</pre>';
+                
+                if (result.success) {
+                    localStorage.setItem('user', JSON.stringify(result.data));
+                }
+            } catch (error) {
+                results.innerHTML = '<h3>Login Error:</h3>' + error.message;
+            }
+        }
+        
+        async function testMe() {
+            const results = document.getElementById('results');
+            results.innerHTML = 'Testing me endpoint...';
+            
+            try {
+                const response = await fetch('../backend/api/auth/me.php', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                results.innerHTML = '<h3>Me Result:</h3><pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            } catch (error) {
+                results.innerHTML = '<h3>Me Error:</h3>' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

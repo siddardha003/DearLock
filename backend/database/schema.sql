@@ -13,7 +13,7 @@ CREATE TABLE users (
     full_name VARCHAR(100),
     profile_icon VARCHAR(50) DEFAULT 'avatar1.jpg',
     font_family VARCHAR(50) DEFAULT 'Inter',
-    diary_pin VARCHAR(4), -- 4 digit PIN for diary access
+    diary_pin VARCHAR(255), -- Bcrypt hash for diary PIN (needs 60+ chars)
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

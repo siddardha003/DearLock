@@ -1,4 +1,4 @@
-// Dear Lock - Main JavaScript
+// DearLock - Main JavaScript
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize the application
   initApp();
@@ -13,6 +13,15 @@ function initApp() {
   
   // Add floating animation variations
   enhanceFloatingElements();
+}
+
+// Navigation functions for index.html
+function goToLogin() {
+  window.location.href = 'login.html';
+}
+
+function goToSignup() {
+  window.location.href = 'signup.html';
 }
 
 function animateElements() {
