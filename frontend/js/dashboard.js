@@ -82,6 +82,13 @@ function switchTab(tabName) {
             // Update active tab
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
+                // Handle home icon switching
+                const homeActiveIcon = tab.querySelector('.home-icon-active');
+                const homeInactiveIcon = tab.querySelector('.home-icon-inactive');
+                if (homeActiveIcon && homeInactiveIcon) {
+                    homeActiveIcon.style.display = 'none';
+                    homeInactiveIcon.style.display = 'block';
+                }
             });
             
             // Hide all content
@@ -99,6 +106,13 @@ function switchTab(tabName) {
             const tabButton = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
             if (tabButton) {
                 tabButton.classList.add('active');
+                // Handle home icon switching for active tab
+                const homeActiveIcon = tabButton.querySelector('.home-icon-active');
+                const homeInactiveIcon = tabButton.querySelector('.home-icon-inactive');
+                if (homeActiveIcon && homeInactiveIcon) {
+                    homeActiveIcon.style.display = 'block';
+                    homeInactiveIcon.style.display = 'none';
+                }
             }
             
             currentTab = tabName;

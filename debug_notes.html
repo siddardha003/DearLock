@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Notes API</title>
+</head>
+<body>
+    <h1>Notes API Debug</h1>
+    <button onclick="testNotesAPI()">Test Notes API</button>
+    <div id="output"></div>
+
+    <script>
+    async function testNotesAPI() {
+        const output = document.getElementById('output');
+        output.innerHTML = 'Testing...';
+        
+        try {
+            const response = await fetch('/DearLock/backend/api/notes.php', {
+                method: 'GET',
+                credentials: 'include'
+            });
+            
+            console.log('Response:', response);
+            console.log('Status:', response.status);
+            console.log('Headers:', response.headers);
+            
+            const result = await response.json();
+            console.log('Result:', result);
+            console.log('Result type:', typeof result);
+            console.log('Result.data:', result.data);
+            console.log('Result.data type:', typeof result.data);
+            console.log('Result.data length:', result.data ? result.data.length : 'no length');
+            
+            output.innerHTML = `
+                <h3>Response Status: ${response.status}</h3>
+                <h3>Result:</h3>
+                <pre>${JSON.stringify(result, null, 2)}</pre>
+                <h3>Data specifically:</h3>
+                <pre>${JSON.stringify(result.data, null, 2)}</pre>
+            `;
+        } catch (error) {
+            console.error('Error:', error);
+            output.innerHTML = `<h3>Error: ${error.message}</h3>`;
+        }
+    }
+    </script>
+</body>
+</html>
