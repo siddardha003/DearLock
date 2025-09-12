@@ -23,17 +23,14 @@ document.addEventListener('DOMContentLoaded', function() {
         entryForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const title = document.getElementById('entryTitle').value.trim();
             const content = document.getElementById('entryContent').value.trim();
-            const mood = document.getElementById('entryMood').value;
-            const weather = document.getElementById('entryWeather').value;
             
-            if (!title || !content) {
-                showMessage('Please fill in title and content', 'error');
+            if (!content) {
+                showMessage('Please fill in content', 'error');
                 return;
             }
             
-            await submitDiaryEntry(title, content, mood, weather);
+            await submitDiaryEntry(content);
         });
     }
 });
@@ -393,13 +390,12 @@ function displayDiaryEntries(entries) {
     console.log(`📚 Displaying ${entries.length} entries`);
     const entriesHTML = entries.map(entry => `
         <div class="diary-entry" onclick="viewEntry(${entry.id})" style="background: white; padding: 20px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;">
-            <h4 style="margin: 0 0 10px 0; color: #333;">${entry.title}</h4>
-            <p style="margin: 0 0 15px 0; color: #666; line-height: 1.5;">${entry.content.substring(0, 100)}${entry.content.length > 100 ? '...' : ''}</p>
+            <h4 style="margin: 0 0 10px 0; color: #333;">${new Date(entry.entry_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h4>
+            <p style="margin: 0 0 15px 0; color: #666; line-height: 1.5;">${entry.content.substring(0, 150)}${entry.content.length > 150 ? '...' : ''}</p>
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #999;">
-                <span>${new Date(entry.entry_date).toLocaleDateString()}</span>
+                <span>Created: ${new Date(entry.created_at).toLocaleDateString()}</span>
                 <div style="display: flex; gap: 10px;">
-                    ${entry.mood ? `<span style="color: #E8B4B8;">😊 ${entry.mood}</span>` : ''}
-                    ${entry.weather ? `<span style="color: #87CEEB;">🌤️ ${entry.weather}</span>` : ''}
+                    <span style="color: #E8B4B8;">� Entry</span>
                 </div>
             </div>
         </div>
@@ -469,17 +465,15 @@ window.clearPin = clearPin;
 window.enterSetupPin = enterSetupPin;
 window.clearSetupPin = clearSetupPin;
 
-async function submitDiaryEntry(title, content, mood, weather) {
+async function submitDiaryEntry(content) {
     try {
         const entryData = {
-            title: title,
             content: content,
             entry_date: new Date().toISOString().split('T')[0]
         };
         
-        // Note: mood and weather are not stored in database yet, 
-        // but we keep them for future enhancement
-        console.log('📝 Creating entry:', { title, content, mood, weather });
+        // Note: title, mood and weather are not stored in simplified database schema
+        console.log('📝 Creating entry:', { content, entry_date: entryData.entry_date });
 
         const response = await fetch('../backend/api/diary.php', {
             method: 'POST',

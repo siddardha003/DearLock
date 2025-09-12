@@ -13,10 +13,46 @@ class TodoApp {
   }
 
   init() {
-    this.loadTodos();
+    this.checkAuthentication();
     this.bindEvents();
-    this.renderTodos();
-    this.updateCounts();
+  }
+
+  async checkAuthentication() {
+    console.log('Checking authentication...');
+    try {
+      const response = await fetch('../backend/api/auth/me.php', {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          console.log('Not authenticated - redirecting to login');
+          this.showNotification('Please log in first');
+          setTimeout(() => window.location.href = 'login.html', 1500);
+          return false;
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      }
+      
+      const result = await response.json();
+      if (result.success) {
+        console.log('User authenticated:', result.data.username);
+        await this.loadTodos();
+        this.renderTodos();
+        this.updateCounts();
+        return true;
+      } else {
+        this.showNotification('Authentication failed');
+        setTimeout(() => window.location.href = 'login.html', 1500);
+        return false;
+      }
+    } catch (error) {
+      console.error('Authentication check error:', error);
+      this.showNotification('Error checking authentication');
+      setTimeout(() => window.location.href = 'login.html', 1500);
+      return false;
+    }
   }
 
   // Event Binding
@@ -244,66 +280,90 @@ class TodoApp {
   }
 
   // Todo Management
-  saveTodo() {
+  async saveTodo() {
     const title = document.getElementById('todoTitle').value.trim();
-    const description = document.getElementById('todoDescription').value.trim();
-    const dueDate = document.getElementById('dueDate').value;
+    const priority = document.getElementById('todoPriority')?.value || 'medium';
 
     if (!title) {
-      alert('Please enter a title for your to-do list.');
-      return;
-    }
-
-    // Collect tasks
-    const taskInputs = document.querySelectorAll('.task-input');
-    const tasks = Array.from(taskInputs)
-      .map(input => input.value.trim())
-      .filter(text => text)
-      .map(text => ({
-        id: Date.now() + Math.random(),
-        text,
-        completed: false
-      }));
-
-    if (tasks.length === 0) {
-      alert('Please add at least one task.');
+      alert('Please enter a title for your todo.');
       return;
     }
 
     const todoData = {
-      id: this.isEditing ? this.editingId : Date.now(),
       title,
-      description,
-      dueDate,
-      theme: this.currentTheme,
-      tasks,
-      createdAt: this.isEditing ? this.todos.find(t => t.id === this.editingId).createdAt : new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      description: '', // Empty description since form doesn't have this field
+      priority,
+      total_steps: 1 // Default to 1 step for simplified todos
     };
 
-    if (this.isEditing) {
-      const index = this.todos.findIndex(t => t.id === this.editingId);
-      this.todos[index] = todoData;
-    } else {
-      this.todos.unshift(todoData);
-    }
+    try {
+      let response;
+      if (this.isEditing) {
+        // Update existing todo
+        todoData.id = this.editingId;
+        response = await fetch('/DearLock/backend/api/todos.php', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(todoData)
+        });
+      } else {
+        // Create new todo
+        response = await fetch('/DearLock/backend/api/todos.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(todoData)
+        });
+      }
 
-    this.saveTodos();
-    this.renderTodos();
-    this.updateCounts();
-    this.closeModal();
-    
-    // Show success message
-    this.showNotification(this.isEditing ? 'To-do list updated!' : 'To-do list created!', 'success');
+      const result = await response.json();
+      
+      if (result.success) {
+        this.showNotification(this.isEditing ? 'Todo updated!' : 'Todo created!', 'success');
+        await this.loadTodos(); // Reload from backend
+        this.renderTodos();
+        this.updateCounts();
+        this.closeModal();
+      } else {
+        this.showNotification('Error: ' + result.message, 'error');
+      }
+    } catch (error) {
+      console.error('Error saving todo:', error);
+      this.showNotification('Error saving todo', 'error');
+    }
   }
 
-  deleteTodo(todoId) {
-    if (confirm('Are you sure you want to delete this to-do list? This action cannot be undone.')) {
-      this.todos = this.todos.filter(todo => todo.id !== todoId);
-      this.saveTodos();
-      this.renderTodos();
-      this.updateCounts();
-      this.showNotification('To-do list deleted!', 'success');
+  async deleteTodo(todoId) {
+    if (confirm('Are you sure you want to delete this todo? This action cannot be undone.')) {
+      try {
+        const response = await fetch('/DearLock/backend/api/todos.php', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ id: todoId })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          this.showNotification('Todo deleted!', 'success');
+          await this.loadTodos(); // Reload from backend
+          this.renderTodos();
+          this.updateCounts();
+        } else {
+          this.showNotification('Error: ' + result.message, 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting todo:', error);
+        this.showNotification('Error deleting todo', 'error');
+      }
     }
   }
 
@@ -331,44 +391,125 @@ class TodoApp {
     this.showNotification('To-do list duplicated!', 'success');
   }
 
-  toggleTask(todoId, taskId) {
-    console.log('toggleTask called with:', { todoId, taskId });
-    
-    const todo = this.todos.find(t => t.id === todoId);
+  async toggleTodoCompletion(todoId) {
+    const todo = this.todos.find(t => t.id == todoId);
     if (!todo) {
       console.error('Todo not found:', todoId);
       return;
     }
 
-    const task = todo.tasks.find(t => t.id === taskId);
-    if (!task) {
-      console.error('Task not found:', taskId, 'Available tasks:', todo.tasks.map(t => ({ id: t.id, text: t.text })));
+    const newCompletionStatus = !todo.is_completed;
+    
+    try {
+      const response = await fetch('/DearLock/backend/api/todos.php', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          id: todoId, 
+          is_completed: newCompletionStatus,
+          completed_steps: newCompletionStatus ? todo.total_steps : 0
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        await this.loadTodos(); // Reload from backend
+        this.renderTodos();
+        this.updateCounts();
+      } else {
+        this.showNotification('Error: ' + result.message, 'error');
+      }
+    } catch (error) {
+      console.error('Error toggling todo completion:', error);
+      this.showNotification('Error updating todo', 'error');
+    }
+  }
+
+  async updateTodoProgress(todoId, completedSteps) {
+    const todo = this.todos.find(t => t.id == todoId);
+    if (!todo) {
+      console.error('Todo not found:', todoId);
       return;
     }
 
-    console.log('Toggling task:', task.text, 'from', task.completed, 'to', !task.completed);
-    task.completed = !task.completed;
-    todo.updatedAt = new Date().toISOString();
+    const isCompleted = completedSteps >= todo.total_steps;
+    
+    try {
+      const response = await fetch('/DearLock/backend/api/todos.php', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          id: todoId, 
+          completed_steps: completedSteps,
+          is_completed: isCompleted
+        })
+      });
 
-    this.saveTodos();
-    this.renderTodos();
-    this.updateCounts();
+      const result = await response.json();
+      
+      if (result.success) {
+        await this.loadTodos(); // Reload from backend
+        this.renderTodos();
+        this.updateCounts();
+      } else {
+        this.showNotification('Error: ' + result.message, 'error');
+      }
+    } catch (error) {
+      console.error('Error updating todo progress:', error);
+      this.showNotification('Error updating todo', 'error');
+    }
+  }
+
+  // Legacy method - keeping for compatibility but updated logic
+  toggleTask(todoId, taskId) {
+    // For backwards compatibility, we'll just toggle the todo completion
+    this.toggleTodoCompletion(todoId);
   }
 
   // Rendering
   renderTodos() {
+    console.log('Rendering todos. Total todos:', this.todos.length);
     const filteredTodos = this.getFilteredTodos();
+    console.log('Filtered todos:', filteredTodos.length);
     const activeTodos = filteredTodos.filter(todo => !this.isCompletedTodo(todo));
     const completedTodos = filteredTodos.filter(todo => this.isCompletedTodo(todo));
+    console.log('Active todos:', activeTodos.length, 'Completed todos:', completedTodos.length);
 
-    this.renderTodoSection('activeTodos', activeTodos);
-    this.renderTodoSection('completedTodos', completedTodos);
-
-    // Show/hide completed section
-    const completedSection = document.getElementById('completedSection');
-    if (completedSection) {
-      completedSection.style.display = completedTodos.length > 0 ? 'block' : 'none';
+    // Use the single container that exists in HTML
+    const container = document.getElementById('todos-container');
+    if (!container) {
+      console.error('todos-container element not found!');
+      return;
     }
+
+    // Combine all todos and render them
+    const allTodos = [...activeTodos, ...completedTodos];
+    
+    if (allTodos.length === 0) {
+      console.log('No todos to display, showing empty state');
+      container.innerHTML = `
+        <div class="empty-state" style="text-align: center; padding: 40px;">
+          <h3>No todos yet</h3>
+          <p>Click the + button to create your first todo!</p>
+        </div>
+      `;
+      return;
+    }
+
+    console.log('Rendering', allTodos.length, 'todos');
+    const todoCards = allTodos.map(todo => this.createTodoCard(todo));
+    console.log('Generated todo cards:', todoCards.length);
+    const joinedHtml = todoCards.join('');
+    console.log('Final HTML length:', joinedHtml.length);
+    container.innerHTML = joinedHtml;
+    console.log('innerHTML set. Container content length:', container.innerHTML.length);
   }
 
   renderTodoSection(containerId, todos) {
@@ -395,28 +536,22 @@ class TodoApp {
   }
 
   createTodoCard(todo) {
+    console.log('Creating todo card for:', todo);
     const progress = this.calculateProgress(todo);
-    const isOverdue = this.isTodoOverdue(todo);
-    const completedTasks = todo.tasks.filter(t => t.completed).length;
-    const totalTasks = todo.tasks.length;
-    const dueDateDisplay = todo.dueDate ? this.formatDueDate(todo.dueDate) : null;
-
+    const isCompleted = this.isCompletedTodo(todo);
+    const priorityClass = `priority-${todo.priority || 'medium'}`;
+    
     return `
-      <div class="todo-card theme-${todo.theme}" data-id="${todo.id}">
-        <div class="todo-card-header">
-          <h3 class="todo-title">${this.escapeHtml(todo.title)}</h3>
-          <div class="todo-actions">
-            <button class="action-btn edit-btn" title="Edit">
+      <div class="todo-card ${priorityClass} ${isCompleted ? 'completed' : ''}" data-id="${todo.id}" style="background: white; padding: 20px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;">
+        <div class="todo-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3 class="todo-title" style="margin: 0; color: #333;">${this.escapeHtml(todo.title)}</h3>
+          <div class="todo-actions" style="display: flex; gap: 5px;">
+            <button class="action-btn edit-btn" onclick="event.stopPropagation(); window.todoApp.editTodo(${todo.id})" title="Edit" style="background: none; border: none; color: #666; cursor: pointer; padding: 5px;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
               </svg>
             </button>
-            <button class="action-btn duplicate-btn" title="Duplicate">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-              </svg>
-            </button>
-            <button class="action-btn delete-btn" title="Delete">
+            <button class="action-btn delete-btn" onclick="event.stopPropagation(); window.todoApp.deleteTodo(${todo.id})" title="Delete" style="background: none; border: none; color: #666; cursor: pointer; padding: 5px;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
               </svg>
@@ -424,45 +559,41 @@ class TodoApp {
           </div>
         </div>
 
-        ${todo.description ? `<p class="todo-description">${this.escapeHtml(todo.description)}</p>` : ''}
+        ${todo.description ? `<p class="todo-description" style="margin: 0 0 15px 0; color: #666;">${this.escapeHtml(todo.description)}</p>` : ''}
 
-        <div class="todo-progress">
-          <div class="progress-info">
-            <span class="progress-text">${completedTasks}/${totalTasks} tasks completed</span>
-            <span class="progress-percentage">${progress}%</span>
+        <div class="todo-progress" style="margin-bottom: 15px;">
+          <div class="progress-info" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <span class="progress-text" style="font-size: 12px; color: #666;">${todo.completed_steps || 0}/${todo.total_steps || 1} steps completed</span>
+            <span class="progress-percentage" style="font-size: 12px; color: #666;">${progress}%</span>
           </div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: ${progress}%"></div>
+          <div class="progress-bar" style="background: #f0f0f0; height: 6px; border-radius: 3px; overflow: hidden;">
+            <div class="progress-fill" style="background: ${isCompleted ? '#4CAF50' : '#E8B4B8'}; height: 100%; width: ${progress}%; transition: width 0.3s ease;"></div>
           </div>
         </div>
 
-        ${dueDateDisplay ? `
-          <div class="todo-due-date ${isOverdue ? 'overdue' : ''}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
-            </svg>
-            ${dueDateDisplay}
+        <div class="todo-footer" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="todo-meta" style="display: flex; gap: 10px; font-size: 12px; color: #999;">
+            <span class="priority" style="background: ${this.getPriorityColor(todo.priority)}; color: white; padding: 2px 6px; border-radius: 10px; text-transform: uppercase;">${todo.priority || 'medium'}</span>
+            <span class="created-date">Created: ${new Date(todo.created_at).toLocaleDateString()}</span>
           </div>
-        ` : ''}
-
-        <div class="task-preview">
-          ${todo.tasks.slice(0, 3).map(task => `
-            <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
-              <div class="task-checkbox ${task.completed ? 'checked' : ''}" data-task-id="${task.id}"></div>
-              <span class="task-text">${this.escapeHtml(task.text)}</span>
-            </div>
-          `).join('')}
-          ${todo.tasks.length > 3 ? `
-            <div class="task-item">
-              <span class="task-text" style="font-style: italic; opacity: 0.7;">
-                +${todo.tasks.length - 3} more tasks...
-              </span>
-            </div>
-          ` : ''}
+          <button class="toggle-completion" onclick="event.stopPropagation(); window.todoApp.toggleTodoCompletion(${todo.id})" style="background: ${isCompleted ? '#4CAF50' : '#E8B4B8'}; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 12px;">
+            ${isCompleted ? 'Mark Incomplete' : 'Mark Complete'}
+          </button>
         </div>
       </div>
     `;
   }
+
+  getPriorityColor(priority) {
+    switch(priority) {
+      case 'high': return '#f44336';
+      case 'medium': return '#ff9800';
+      case 'low': return '#4caf50';
+      default: return '#999';
+    }
+  }
+
+  // Remove the old renderTodoSection function since we're using a single container now
 
   bindCardEvents(container) {
     // Edit buttons
@@ -548,21 +679,18 @@ class TodoApp {
   }
 
   calculateProgress(todo) {
-    if (todo.tasks.length === 0) return 0;
-    const completedTasks = todo.tasks.filter(task => task.completed).length;
-    return Math.round((completedTasks / todo.tasks.length) * 100);
+    if (!todo.total_steps || todo.total_steps === 0) return 0;
+    return Math.round((todo.completed_steps / todo.total_steps) * 100);
   }
 
   isCompletedTodo(todo) {
-    return todo.tasks.length > 0 && todo.tasks.every(task => task.completed);
+    return todo.is_completed === 1 || todo.is_completed === true;
   }
 
   isTodoOverdue(todo) {
-    if (!todo.dueDate) return false;
-    const dueDate = new Date(todo.dueDate);
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    return dueDate < now;
+    // Since we removed due_date field, return false for now
+    // This method can be removed or modified based on future requirements
+    return false;
   }
 
   formatDueDate(dateString) {
@@ -604,23 +732,37 @@ class TodoApp {
   }
 
   // Data Management
-  loadTodos() {
+  async loadTodos() {
+    console.log('Loading todos from backend...');
     try {
-      const saved = localStorage.getItem('dearLockTodos');
-      this.todos = saved ? JSON.parse(saved) : [];
+      const response = await fetch('/DearLock/backend/api/todos.php', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      
+      console.log('Response status:', response.status);
+      const result = await response.json();
+      console.log('API result:', result);
+      
+      if (result.success) {
+        this.todos = result.data || [];
+        console.log('Loaded todos:', this.todos);
+      } else {
+        console.error('Failed to load todos:', result.message);
+        this.showNotification('Failed to load todos: ' + result.message, 'error');
+        this.todos = [];
+      }
     } catch (error) {
       console.error('Error loading todos:', error);
+      this.showNotification('Network error loading todos', 'error');
       this.todos = [];
     }
   }
 
   saveTodos() {
-    try {
-      localStorage.setItem('dearLockTodos', JSON.stringify(this.todos));
-    } catch (error) {
-      console.error('Error saving todos:', error);
-      this.showNotification('Error saving data. Please try again.', 'error');
-    }
+    // This method is now deprecated since we use backend API
+    // Keeping for compatibility but it does nothing
+    console.log('saveTodos called - now using backend API instead');
   }
 
   // Utility Functions
