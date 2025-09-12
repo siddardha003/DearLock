@@ -1,52 +1,177 @@
-<?php<?php
+<?php
+// Todos API endpoint
+require_once __DIR__ . '/../api_config.php';
 
-// Todos API endpoint// Todos API endpoint
+Auth::requireAuth();
 
-require_once __DIR__ . '/../api_config.php';require_once __DIR__ . '/../api_config.php';
+$database = new Database();
+$db = $database->connect();
+$userId = Auth::getCurrentUserId();
 
-
-
-Auth::requireAuth();Auth::requireAuth();
-
-
-
-$database = new Database();$database = new Database();
-
-$db = $database->connect();$db = $database->connect();
-
-$userId = Auth::getCurrentUserId();$userId = Auth::getCurrentUserId();
-
-
-
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-
-    try {    try {
-
-        $query = "SELECT * FROM todos         $query = "SELECT t.*, c.name as category_name, c.color as category_color 
-
-                  WHERE user_id = :user_id                   FROM todos t 
-
-                  ORDER BY priority DESC, created_at DESC";                  LEFT JOIN categories c ON t.category_id = c.id 
-
-        $stmt = $db->prepare($query);                  WHERE t.user_id = :user_id 
-
-        $stmt->bindParam(':user_id', $userId);                  ORDER BY t.is_pinned DESC, t.priority DESC, t.due_date ASC, t.created_at DESC";
-
-        $stmt->execute();        $stmt = $db->prepare($query);
-
-                $stmt->bindParam(':user_id', $userId);
-
-        $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);        $stmt->execute();
-
-        ApiResponse::success($todos, 'Todos retrieved successfully');        
-
-                $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    } catch (PDOException $e) {        ApiResponse::success($todos, 'Todos retrieved successfully');
-
-        ApiResponse::error('Failed to retrieve todos: ' . $e->getMessage(), 500);        
-
-    }    } catch (PDOException $e) {
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    try {
+        $query = "SELECT * FROM todos 
+                  WHERE user_id = :user_id 
+                  ORDER BY is_completed ASC, priority DESC, created_at DESC";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->execute();
+        
+        $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        ApiResponse::success($todos, 'Todos retrieved successfully');
+        
+    } catch (PDOException $e) {
+        ApiResponse::error('Failed to retrieve todos: ' . $e->getMessage(), 500);
+    }
+    
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    if (!$data || !isset($data['title'])) {
+        ApiResponse::error('Title is required', 400);
+    }
+    
+    try {
+        $query = "INSERT INTO todos (user_id, title, description, priority, total_steps, created_at, updated_at) 
+                  VALUES (:user_id, :title, :description, :priority, :total_steps, NOW(), NOW())";
+        
+        $stmt = $db->prepare($query);
+        
+        // Prepare variables for binding
+        $title = $data['title'];
+        $description = $data['description'] ?? null;
+        $priority = $data['priority'] ?? 'medium';
+        $totalSteps = $data['total_steps'] ?? 1;
+        
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->bindParam(':title', $title);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':priority', $priority);
+        $stmt->bindParam(':total_steps', $totalSteps);
+        
+        $stmt->execute();
+        $todoId = $db->lastInsertId();
+        
+        // Get the created todo
+        $getQuery = "SELECT * FROM todos WHERE id = :id AND user_id = :user_id";
+        $getStmt = $db->prepare($getQuery);
+        $getStmt->bindParam(':id', $todoId);
+        $getStmt->bindParam(':user_id', $userId);
+        $getStmt->execute();
+        
+        $todo = $getStmt->fetch(PDO::FETCH_ASSOC);
+        ApiResponse::success($todo, 'Todo created successfully');
+        
+    } catch (PDOException $e) {
+        ApiResponse::error('Failed to create todo: ' . $e->getMessage(), 500);
+    }
+    
+} elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    if (!$data || !isset($data['id'])) {
+        ApiResponse::error('Todo ID is required', 400);
+    }
+    
+    try {
+        // Build dynamic query based on provided fields
+        $updateFields = [];
+        $params = [':id' => $data['id'], ':user_id' => $userId];
+        
+        if (isset($data['title'])) {
+            $updateFields[] = "title = :title";
+            $params[':title'] = $data['title'];
+        }
+        
+        if (isset($data['description'])) {
+            $updateFields[] = "description = :description";
+            $params[':description'] = $data['description'];
+        }
+        
+        if (isset($data['priority'])) {
+            $updateFields[] = "priority = :priority";
+            $params[':priority'] = $data['priority'];
+        }
+        
+        if (isset($data['total_steps'])) {
+            $updateFields[] = "total_steps = :total_steps";
+            $params[':total_steps'] = $data['total_steps'];
+        }
+        
+        if (isset($data['completed_steps'])) {
+            $updateFields[] = "completed_steps = :completed_steps";
+            $params[':completed_steps'] = $data['completed_steps'];
+        }
+        
+        if (isset($data['is_completed'])) {
+            $updateFields[] = "is_completed = :is_completed";
+            $params[':is_completed'] = $data['is_completed'] ? 1 : 0;
+            
+            if ($data['is_completed']) {
+                $updateFields[] = "completed_at = NOW()";
+            } else {
+                $updateFields[] = "completed_at = NULL";
+            }
+        }
+        
+        $updateFields[] = "updated_at = NOW()";
+        
+        if (empty($updateFields)) {
+            ApiResponse::error('No fields to update', 400);
+        }
+        
+        $query = "UPDATE todos SET " . implode(', ', $updateFields) . " 
+                  WHERE id = :id AND user_id = :user_id";
+        
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
+        
+        if ($stmt->rowCount() === 0) {
+            ApiResponse::error('Todo not found or no changes made', 404);
+        }
+        
+        // Get the updated todo
+        $getQuery = "SELECT * FROM todos WHERE id = :id AND user_id = :user_id";
+        $getStmt = $db->prepare($getQuery);
+        $getStmt->bindParam(':id', $data['id']);
+        $getStmt->bindParam(':user_id', $userId);
+        $getStmt->execute();
+        
+        $todo = $getStmt->fetch(PDO::FETCH_ASSOC);
+        ApiResponse::success($todo, 'Todo updated successfully');
+        
+    } catch (PDOException $e) {
+        ApiResponse::error('Failed to update todo: ' . $e->getMessage(), 500);
+    }
+    
+} elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    if (!$data || !isset($data['id'])) {
+        ApiResponse::error('Todo ID is required', 400);
+    }
+    
+    try {
+        $query = "DELETE FROM todos WHERE id = :id AND user_id = :user_id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id', $data['id']);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() === 0) {
+            ApiResponse::error('Todo not found', 404);
+        }
+        
+        ApiResponse::success(null, 'Todo deleted successfully');
+        
+    } catch (PDOException $e) {
+        ApiResponse::error('Failed to delete todo: ' . $e->getMessage(), 500);
+    }
+    
+} else {
+    ApiResponse::error('Method not allowed', 405);
+}
+?>
 
             ApiResponse::error('Failed to retrieve todos: ' . $e->getMessage(), 500);
 
