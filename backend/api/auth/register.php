@@ -27,10 +27,13 @@ if ($input['password'] !== ($input['confirm_password'] ?? '')) {
 }
 
 // Connect to database
-$database = new Database();
-$db = $database->connect();
-
 try {
+    $database = new Database();
+    $db = $database->connect();
+    
+    if (!$db) {
+        ApiResponse::error('Database connection failed', 500);
+    }
     // Check if username or email already exists
     $checkQuery = "SELECT id FROM users WHERE username = :username OR email = :email";
     $checkStmt = $db->prepare($checkQuery);
@@ -74,9 +77,9 @@ try {
     } else {
         ApiResponse::error('Failed to create account');
     }
-} catch (PDOException $e) {
+} catch (Exception $e) {
     // Log the actual error for debugging
-    error_log("Registration PDO Error: " . $e->getMessage());
-    ApiResponse::error('Registration failed: ' . $e->getMessage(), 500);
+    error_log("Registration Error: " . $e->getMessage());
+    ApiResponse::error('Registration failed. Please try again.', 500);
 }
 ?>

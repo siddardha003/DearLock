@@ -94,13 +94,13 @@ CREATE TABLE images (
     INDEX idx_type_related (image_type, related_id)
 );
 
+-- Sample user for testing (password: 'dreamy123')
+INSERT INTO users (username, email, password_hash, full_name) VALUES 
+('dreamer', 'dreamer@dearlock.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Dream Keeper');
+
 -- Insert default categories for new users
 INSERT INTO categories (user_id, name, color) VALUES 
 (1, 'Personal', '#E8B4B8'),
 (1, 'Work', '#F4E4E6'),
 (1, 'Ideas', '#F8F6F0'),
 (1, 'Important', '#E8B4B8');
-
--- Sample user for testing (password: 'dreamy123')
-INSERT INTO users (username, email, password_hash, full_name) VALUES 
-('dreamer', 'dreamer@dearlock.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Dream Keeper');

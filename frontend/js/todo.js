@@ -88,20 +88,8 @@ class TodoApp {
   }
 
   bindModalEvents() {
-    const modalOverlay = document.getElementById('modalOverlay');
-    const closeModal = document.getElementById('closeModal');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const saveTodoBtn = document.getElementById('saveTodoBtn');
-    const addTaskBtn = document.getElementById('addTaskBtn');
-
-    // Close modal events
-    [closeModal, cancelBtn].forEach(btn => {
-      if (btn) {
-        btn.addEventListener('click', () => {
-          this.closeModal();
-        });
-      }
-    });
+    const modalOverlay = document.getElementById('todo-modal');
+    const todoForm = document.getElementById('todoForm');
 
     // Close modal on overlay click
     if (modalOverlay) {
@@ -112,89 +100,71 @@ class TodoApp {
       });
     }
 
-    // Save todo button
-    if (saveTodoBtn) {
-      saveTodoBtn.addEventListener('click', () => {
+    // Form submission
+    if (todoForm) {
+      todoForm.addEventListener('submit', (e) => {
+        e.preventDefault();
         this.saveTodo();
-      });
-    }
-
-    // Add task button
-    if (addTaskBtn) {
-      addTaskBtn.addEventListener('click', () => {
-        this.addTaskInput();
-      });
-    }
-
-    // Theme selection
-    const themeButtons = document.querySelectorAll('.theme-btn');
-    themeButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        themeButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.currentTheme = btn.dataset.theme;
-      });
-    });
-
-    // Handle Enter key in todo title
-    const todoTitleInput = document.getElementById('todoTitle');
-    if (todoTitleInput) {
-      todoTitleInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          this.saveTodo();
-        }
       });
     }
   }
 
   // Modal Management
   openModal(todoId = null) {
-    const modalOverlay = document.getElementById('modalOverlay');
-    const modalTitle = document.getElementById('modalTitle');
+    const modalOverlay = document.getElementById('todo-modal');
+    const modalTitle = document.querySelector('#todo-modal h3');
+    
+    console.log('Opening modal...', { modalOverlay, modalTitle }); // Debug log
+    
+    if (!modalOverlay) {
+      console.error('Modal overlay not found!');
+      return;
+    }
     
     if (todoId) {
       this.isEditing = true;
       this.editingId = todoId;
-      modalTitle.textContent = 'Edit To-Do List';
+      if (modalTitle) {
+        modalTitle.textContent = 'Edit To-Do List';
+      }
       this.populateModalWithTodo(todoId);
     } else {
       this.isEditing = false;
       this.editingId = null;
-      modalTitle.textContent = 'Create New To-Do List';
+      if (modalTitle) {
+        modalTitle.textContent = 'Add New Todo';
+      }
       this.resetModal();
     }
 
-    modalOverlay.classList.add('active');
+    modalOverlay.classList.add('show');
     document.body.style.overflow = 'hidden';
     
     // Focus on title input
     setTimeout(() => {
-      document.getElementById('todoTitle').focus();
+      const titleInput = document.getElementById('todoTitle');
+      if (titleInput) titleInput.focus();
     }, 100);
   }
 
   closeModal() {
-    const modalOverlay = document.getElementById('modalOverlay');
-    modalOverlay.classList.remove('active');
+    const modalOverlay = document.getElementById('todo-modal');
+    if (modalOverlay) modalOverlay.classList.remove('show');
     document.body.style.overflow = 'auto';
     this.resetModal();
   }
 
   resetModal() {
-    document.getElementById('todoTitle').value = '';
-    document.getElementById('todoDescription').value = '';
-    document.getElementById('dueDate').value = '';
+    // Reset form fields that actually exist in the HTML
+    const titleInput = document.getElementById('todoTitle');
+    const prioritySelect = document.getElementById('todoPriority');
     
-    // Reset theme selection
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-      btn.classList.remove('active');
-    });
-    document.querySelector('.theme-btn[data-theme="default"]').classList.add('active');
-    this.currentTheme = 'default';
-
-    // Reset tasks
-    this.resetTasks();
+    if (titleInput) titleInput.value = '';
+    if (prioritySelect) prioritySelect.value = 'medium';
+    
+    // Reset the form completely
+    const form = document.getElementById('todoForm');
+    if (form) form.reset();
   }
 
   populateModalWithTodo(todoId) {
@@ -706,6 +676,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Todo App
   window.todoApp = new TodoApp();
 });
+
+// Global functions for HTML onclick handlers
+function closeTodoModal() {
+  if (window.todoApp) {
+    window.todoApp.closeModal();
+  }
+}
 
 // Handle page visibility change to update overdue status
 document.addEventListener('visibilitychange', () => {
