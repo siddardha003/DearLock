@@ -6,30 +6,30 @@ let firstSetupPin = ''; // Store the first PIN for comparison
 let setupStep = 'first'; // 'first' or 'confirm'
 let diaryUnlocked = false;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('📱 Diary page initializing...');
     console.log('🔐 Initial diary unlock status:', diaryUnlocked);
-    
+
     checkAuthStatus();
     console.log('✅ Auth status checked');
-    
+
     checkDiaryAccess();
     console.log('✅ Diary access checked');
-    
+
     // Setup entry form handler
     const entryForm = document.getElementById('entryForm');
     if (entryForm) {
         console.log('📝 Setting up entry form handler');
-        entryForm.addEventListener('submit', async function(e) {
+        entryForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const content = document.getElementById('entryContent').value.trim();
-            
+
             if (!content) {
                 showMessage('Please fill in content', 'error');
                 return;
             }
-            
+
             await submitDiaryEntry(content);
         });
     }
@@ -50,10 +50,10 @@ async function checkDiaryAccess() {
         const response = await fetch('../backend/api/auth/me.php', {
             credentials: 'include' // Include cookies for session
         });
-        
+
         console.log('📡 Response status:', response.status);
         console.log('📡 Response ok:', response.ok);
-        
+
         if (!response.ok) {
             if (response.status === 401) {
                 // Not authenticated - redirect to login
@@ -65,12 +65,12 @@ async function checkDiaryAccess() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
         }
-        
+
         const result = await response.json();
         console.log('📋 Me result:', result);
         console.log('🔍 has_diary_pin value:', result.data?.has_diary_pin);
         console.log('🔍 has_diary_pin type:', typeof result.data?.has_diary_pin);
-        
+
         if (result.success) {
             if (!result.data.has_diary_pin) {
                 console.log('🆕 First time user - showing PIN setup');
@@ -104,7 +104,7 @@ function showPinSetup() {
     } else {
         console.error('❌ Could not find pin-setup-modal element');
     }
-    
+
     const diaryContent = document.getElementById('diary-content');
     if (diaryContent) {
         diaryContent.style.filter = 'blur(5px)';
@@ -121,7 +121,7 @@ function showPinEntry() {
     } else {
         console.error('❌ Could not find pin-modal element');
     }
-    
+
     const diaryContent = document.getElementById('diary-content');
     if (diaryContent) {
         diaryContent.style.filter = 'blur(5px)';
@@ -133,20 +133,20 @@ function showPinEntry() {
 
 function hidePinModals() {
     console.log('🔓 Hiding PIN modals and unlocking diary interface');
-    
+
     const pinModal = document.getElementById('pin-modal');
     const setupModal = document.getElementById('pin-setup-modal');
-    
+
     if (pinModal) {
         pinModal.classList.remove('show');
         console.log('✅ PIN entry modal hidden');
     }
-    
+
     if (setupModal) {
         setupModal.classList.remove('show');
         console.log('✅ PIN setup modal hidden');
     }
-    
+
     const diaryContent = document.getElementById('diary-content');
     if (diaryContent) {
         diaryContent.style.filter = 'none';
@@ -154,7 +154,7 @@ function hidePinModals() {
     } else {
         console.error('❌ Could not find diary-content element to unblur');
     }
-    
+
     console.log('✅ PIN modals hidden, diary content unblurred');
 }
 
@@ -164,7 +164,7 @@ function enterSetupPin(digit) {
         if (setupPin.length < 4) {
             setupPin += digit;
             updateSetupPinDisplay();
-            
+
             if (setupPin.length === 4) {
                 setTimeout(() => {
                     setupStep = 'confirm';
@@ -180,7 +180,7 @@ function enterSetupPin(digit) {
         if (confirmPin.length < 4) {
             confirmPin += digit;
             updateSetupPinDisplay();
-            
+
             if (confirmPin.length === 4) {
                 setTimeout(() => {
                     console.log('🔍 PIN Comparison:', { firstSetupPin, confirmPin, match: firstSetupPin === confirmPin });
@@ -210,7 +210,7 @@ function clearSetupPin() {
 function updateSetupPinDisplay() {
     const dots = document.querySelectorAll('#pin-setup-modal .pin-dot');
     const currentPin = setupStep === 'first' ? setupPin : confirmPin;
-    
+
     dots.forEach((dot, index) => {
         if (index < currentPin.length) {
             dot.classList.add('filled');
@@ -245,7 +245,7 @@ async function setDiaryPin(pin) {
         });
 
         const result = await response.json();
-        
+
         if (result.success) {
             showMessage('Diary PIN set successfully!', 'success');
             diaryUnlocked = true;
@@ -267,7 +267,7 @@ function enterPin(digit) {
     if (currentPin.length < 4) {
         currentPin += digit;
         updatePinDisplay();
-        
+
         if (currentPin.length === 4) {
             setTimeout(() => {
                 verifyDiaryPin(currentPin);
@@ -306,12 +306,12 @@ async function verifyDiaryPin(pin) {
         });
 
         const result = await response.json();
-        
+
         if (result.success) {
             console.log('✅ PIN verified successfully! Unlocking diary...');
             diaryUnlocked = true;
             console.log('🔓 Diary unlocked status set to:', diaryUnlocked);
-            
+
             hidePinModals();
             loadDiaryEntries();
         } else {
@@ -335,7 +335,7 @@ async function verifyDiaryPin(pin) {
 // Diary Content Functions
 async function loadDiaryEntries() {
     console.log('📖 Loading diary entries... diaryUnlocked:', diaryUnlocked);
-    
+
     if (!diaryUnlocked) {
         console.log('❌ Diary is locked, cannot load entries');
         return;
@@ -345,16 +345,16 @@ async function loadDiaryEntries() {
         const response = await fetch('../backend/api/diary.php', {
             credentials: 'include' // Include cookies for session
         });
-        
+
         console.log('📡 Load entries response status:', response.status);
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
         console.log('📋 Load entries result:', result);
-        
+
         if (result.success) {
             console.log('✅ Entries loaded successfully:', result.data.length, 'entries');
             displayDiaryEntries(result.data);
@@ -370,37 +370,55 @@ async function loadDiaryEntries() {
 function displayDiaryEntries(entries) {
     console.log('🎨 Displaying diary entries:', entries);
     const container = document.getElementById('entries-container');
-    
+
     if (!container) {
         console.error('❌ entries-container element not found!');
         return;
     }
-    
+
     if (!entries || entries.length === 0) {
         console.log('📝 No entries to display, showing empty state');
         container.innerHTML = `
             <div class="empty-state" style="text-align: center; padding: 40px;">
-                <h3>No diary entries yet</h3>
-                <p>Click the + button to write your first entry!</p>
+                <div style="font-size: 48px; margin-bottom: 16px;">📔</div>
+                <h3 style="color: #333; margin-bottom: 8px;">No diary entries yet</h3>
+                <p style="color: #666;">Click the + button to write your first entry!</p>
             </div>
         `;
         return;
     }
-    
+
     console.log(`📚 Displaying ${entries.length} entries`);
-    const entriesHTML = entries.map(entry => `
-        <div class="diary-entry" onclick="viewEntry(${entry.id})" style="background: white; padding: 20px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;">
-            <h4 style="margin: 0 0 10px 0; color: #333;">${new Date(entry.entry_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h4>
-            <p style="margin: 0 0 15px 0; color: #666; line-height: 1.5;">${entry.content.substring(0, 150)}${entry.content.length > 150 ? '...' : ''}</p>
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #999;">
-                <span>Created: ${new Date(entry.created_at).toLocaleDateString()}</span>
-                <div style="display: flex; gap: 10px;">
-                    <span style="color: #E8B4B8;">� Entry</span>
+    const entriesHTML = entries.map(entry => {
+        const createdDate = new Date(entry.created_at);
+
+        return `
+            <div class="diary-entry" data-entry-id="${entry.id}" onclick="viewEntry(${entry.id})">
+                <h4>${formatEntryDate(entry.entry_date)}</h4>
+                <p>${entry.content.length > 150 ? entry.content.substring(0, 150) + '...' : entry.content}</p>
+                <div class="entry-footer">
+                    <span>Created: ${formatDate(createdDate)}</span>
+                    <div class="entry-actions">
+                        <button class="action-btn edit" onclick="event.stopPropagation(); openEditEntry(${entry.id})" title="Edit entry">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                </button>
+                        <button class="action-btn delete" onclick="event.stopPropagation(); deleteEntry(${entry.id})" title="Delete entry">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <polyline points="3,6 5,6 21,6" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" stroke-width="2"/>
+                        <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+                
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
-    
+        `;
+    }).join('');
+
     container.innerHTML = entriesHTML;
 }
 
@@ -423,7 +441,7 @@ function showEntryModal() {
     } else {
         console.error('❌ Could not find entry-modal element');
     }
-    
+
     const titleInput = document.getElementById('entryTitle');
     if (titleInput) {
         titleInput.focus();
@@ -432,7 +450,7 @@ function showEntryModal() {
 
 function closeEntryModal() {
     console.log('🔄 Closing entry modal...');
-    
+
     const modal = document.getElementById('entry-modal');
     if (modal) {
         modal.classList.remove('show');
@@ -440,14 +458,14 @@ function closeEntryModal() {
     } else {
         console.error('❌ Could not find entry-modal element');
     }
-    
+
     // Clear form - check both possible IDs
     let form = document.getElementById('entryForm');
     if (!form) {
         form = document.getElementById('entry-form');
         console.log('🔄 Trying entry-form ID instead of entryForm');
     }
-    
+
     if (form) {
         form.reset();
         console.log('✅ Form cleared successfully');
@@ -465,13 +483,272 @@ window.clearPin = clearPin;
 window.enterSetupPin = enterSetupPin;
 window.clearSetupPin = clearSetupPin;
 
+// Variables for tracking current operations
+let currentEntryId = null;
+let currentEntryData = null;
+
+// Date formatting functions
+function formatEntryDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+function formatDate(date) {
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+}
+
+// Search functionality
+function searchEntries() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const entries = document.querySelectorAll('.diary-entry');
+
+    entries.forEach(entry => {
+        const content = entry.querySelector('p').textContent.toLowerCase();
+        const date = entry.querySelector('h4').textContent.toLowerCase();
+
+        if (content.includes(searchTerm) || date.includes(searchTerm)) {
+            entry.style.display = 'block';
+        } else {
+            entry.style.display = 'none';
+        }
+    });
+}
+
+// View Entry Modal Functions
+async function viewEntry(entryId) {
+    try {
+        const response = await fetch(`../backend/api/diary.php?id=${entryId}`, {
+            credentials: 'include'
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            currentEntryData = result.data;
+            showViewModal(result.data);
+        } else {
+            showMessage('Entry not found', 'error');
+        }
+    } catch (error) {
+        console.error('Error fetching entry:', error);
+        showMessage('Error loading entry', 'error');
+    }
+}
+
+function showViewModal(entry) {
+    const modal = document.getElementById('view-modal');
+    const createdDate = new Date(entry.created_at);
+    const updatedDate = new Date(entry.updated_at);
+    const wasEdited = createdDate.getTime() !== updatedDate.getTime();
+
+    document.getElementById('viewEntryTitle').textContent = formatEntryDate(entry.entry_date);
+    document.getElementById('viewCreatedDate').textContent = formatDate(createdDate);
+    document.getElementById('viewEntryContent').textContent = entry.content;
+
+    const updatedInfo = document.getElementById('viewUpdatedInfo');
+    if (wasEdited) {
+        document.getElementById('viewUpdatedDate').textContent = formatDate(updatedDate);
+        updatedInfo.style.display = 'block';
+    } else {
+        updatedInfo.style.display = 'none';
+    }
+
+    currentEntryId = entry.id;
+    currentEntryData = entry;  // Set the current entry data
+    modal.classList.add('show');
+}
+
+function closeViewModal() {
+    document.getElementById('view-modal').classList.remove('show');
+    currentEntryId = null;
+    currentEntryData = null;
+}
+
+// Edit Entry Modal Functions
+function editEntry() {
+    if (currentEntryData) {
+        const entryId = currentEntryData.id; // Store the ID before closing modal
+        closeViewModal();
+        openEditEntry(entryId);
+    } else {
+        showMessage('Error: Entry data not found', 'error');
+    }
+}
+
+async function openEditEntry(entryId) {
+    try {
+        // Get entry data if not already available
+        if (!currentEntryData || currentEntryData.id !== entryId) {
+            const response = await fetch(`../backend/api/diary.php?id=${entryId}`, {
+                credentials: 'include'
+            });
+
+            const result = await response.json();
+
+            if (result.success && result.data) {
+                currentEntryData = result.data;
+            } else {
+                showMessage('Entry not found', 'error');
+                return;
+            }
+        }
+
+        showEditModal(currentEntryData);
+    } catch (error) {
+        console.error('Error fetching entry for edit:', error);
+        showMessage('Error loading entry for editing', 'error');
+    }
+}
+
+function showEditModal(entry) {
+    const modal = document.getElementById('edit-modal');
+    const createdDate = new Date(entry.created_at);
+
+    document.getElementById('editCreatedDate').textContent = formatDate(createdDate);
+    document.getElementById('editEntryContent').value = entry.content;
+
+    currentEntryId = entry.id;
+    modal.classList.add('show');
+
+    // Focus on textarea
+    document.getElementById('editEntryContent').focus();
+}
+
+function closeEditModal() {
+    document.getElementById('edit-modal').classList.remove('show');
+    document.getElementById('editForm').reset();
+    currentEntryId = null;
+}
+
+async function updateEntry(entryId, content) {
+    try {
+        const response = await fetch('../backend/api/diary.php', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                id: entryId,
+                content: content
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showMessage('Entry updated successfully!', 'success');
+            closeEditModal();
+            loadDiaryEntries(); // Reload entries
+        } else {
+            showMessage(result.message || 'Failed to update entry', 'error');
+        }
+    } catch (error) {
+        console.error('Error updating entry:', error);
+        showMessage('Error updating entry', 'error');
+    }
+}
+
+// Delete Entry Functions
+function deleteEntry(entryId) {
+    currentEntryId = entryId;
+    document.getElementById('confirm-modal').classList.add('show');
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirm-modal').classList.remove('show');
+    currentEntryId = null;
+}
+
+async function confirmDelete() {
+    if (!currentEntryId) return;
+
+    try {
+        const response = await fetch('../backend/api/diary.php', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                id: currentEntryId
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showMessage('Entry deleted successfully', 'success');
+            closeConfirmModal();
+            loadDiaryEntries(); // Reload entries
+        } else {
+            showMessage(result.message || 'Failed to delete entry', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting entry:', error);
+        showMessage('Error deleting entry', 'error');
+    }
+}
+
+// Helper function to get date from entry element
+function getCurrentDateFromEntry(entryId) {
+    const entryElement = document.querySelector(`[data-entry-id="${entryId}"]`);
+    if (entryElement) {
+        // Extract date from the visible date text or use current date as fallback
+        return new Date().toISOString().split('T')[0];
+    }
+    return new Date().toISOString().split('T')[0];
+}
+
+// Form event handlers
+document.addEventListener('DOMContentLoaded', function () {
+    // Edit form handler
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        editForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const content = document.getElementById('editEntryContent').value.trim();
+
+            if (!content) {
+                showMessage('Please enter some content', 'error');
+                return;
+            }
+
+            if (currentEntryId) {
+                await updateEntry(currentEntryId, content);
+            }
+        });
+    }
+});
+
+// Add new global functions
+window.viewEntry = viewEntry;
+window.openEditEntry = openEditEntry;
+window.editEntry = editEntry;
+window.deleteEntry = deleteEntry;
+window.closeViewModal = closeViewModal;
+window.closeEditModal = closeEditModal;
+window.closeConfirmModal = closeConfirmModal;
+window.confirmDelete = confirmDelete;
+window.searchEntries = searchEntries;
+
 async function submitDiaryEntry(content) {
     try {
         const entryData = {
             content: content,
             entry_date: new Date().toISOString().split('T')[0]
         };
-        
+
         // Note: title, mood and weather are not stored in simplified database schema
         console.log('📝 Creating entry:', { content, entry_date: entryData.entry_date });
 
@@ -491,7 +768,7 @@ async function submitDiaryEntry(content) {
         }
 
         const result = await response.json();
-        
+
         if (result.success) {
             console.log('✅ Entry created successfully!', result);
             showMessage('Diary entry created successfully!', 'success');
@@ -510,9 +787,6 @@ async function submitDiaryEntry(content) {
             showMessage('Error creating diary entry', 'error');
         }
     }
-}function viewEntry(entryId) {
-    // For now, just show a message - could implement a detailed view modal
-    showMessage('Entry viewing feature - coming soon!', 'info');
 }
 
 // Toast message function
