@@ -59,20 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     
 } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-    // Get note ID from URL path
-    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    preg_match('/\/notes\/(\d+)$/', $path, $matches);
+    $data = json_decode(file_get_contents('php://input'), true);
     
-    if (!isset($matches[1])) {
+    if (!$data || !isset($data['id'])) {
         ApiResponse::error('Note ID is required', 400);
     }
     
-    $noteId = $matches[1];
-    $data = json_decode(file_get_contents('php://input'), true);
-    
-    if (!$data) {
-        ApiResponse::error('Invalid JSON data', 400);
-    }
+    $noteId = $data['id'];
     
     try {
         // Verify note belongs to user
@@ -129,15 +122,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     
 } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    // Get note ID from URL path
-    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    preg_match('/\/notes\/(\d+)$/', $path, $matches);
+    $data = json_decode(file_get_contents('php://input'), true);
     
-    if (!isset($matches[1])) {
+    if (!$data || !isset($data['id'])) {
         ApiResponse::error('Note ID is required', 400);
     }
     
-    $noteId = $matches[1];
+    $noteId = $data['id'];
     
     try {
         $query = "DELETE FROM notes WHERE id = :id AND user_id = :user_id";

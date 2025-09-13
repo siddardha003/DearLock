@@ -65,16 +65,17 @@ CREATE TABLE todos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     title VARCHAR(200) NOT NULL,
-    description TEXT,
-    total_steps INT DEFAULT 1, -- Total number of steps
-    completed_steps INT DEFAULT 0, -- Number of completed steps
+    priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
+    due_date DATE NULL,
     is_completed BOOLEAN DEFAULT FALSE,
     completed_at DATETIME NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_user_todos (user_id),
-    INDEX idx_completed (is_completed)
+    INDEX idx_completed (is_completed),
+    INDEX idx_due_date (due_date),
+    INDEX idx_priority (priority)
 );
 
 -- Images table - For note backgrounds and profile pictures

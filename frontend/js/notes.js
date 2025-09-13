@@ -93,8 +93,20 @@ function initializeElements() {
 }
 
 function attachEventListeners() {
-    // Search functionality
-    searchInput?.addEventListener('input', handleSearch);
+    // Search functionality with debouncing
+    let searchTimeout;
+    searchInput?.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(handleSearch, 300); // Debounce search by 300ms
+    });
+    
+    // Also trigger search on Enter key
+    searchInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            clearTimeout(searchTimeout);
+            handleSearch();
+        }
+    });
     
     // Filter buttons
     filterButtons.forEach(btn => {
@@ -163,10 +175,21 @@ function handleSearch() {
         filteredNotes = notes.filter(note => 
             note.title.toLowerCase().includes(query) ||
             note.content.toLowerCase().includes(query) ||
-            note.labels.some(label => label.toLowerCase().includes(query))
+            (note.labels && note.labels.some(label => label.toLowerCase().includes(query)))
         );
     }
     
+    renderNotes();
+    
+    // Show search results feedback
+    if (query && filteredNotes.length === 0) {
+        showNotification(`No notes found for "${query}"`);
+    }
+}
+
+function clearSearch() {
+    searchInput.value = '';
+    filteredNotes = notes;
     renderNotes();
 }
 
@@ -227,17 +250,21 @@ function openAddNoteModal() {
 }
 
 function openEditNoteModal(noteId) {
-    const note = notes.find(n => n.id === noteId);
-    if (!note) return;
+    console.log('Opening edit modal for note ID:', noteId);
+    const note = notes.find(n => n.id == noteId);
+    if (!note) {
+        console.error('Note not found with ID:', noteId);
+        return;
+    }
     
     editingNoteId = noteId;
     resetModal();
     
     // Fill modal with note data
-    noteTitleInput.value = note.title;
-    noteTextInput.value = note.content;
+    noteTitleInput.value = note.title || '';
+    noteTextInput.value = note.content || '';
     selectedBackground = note.background || 'default';
-    selectedLabels = [...note.labels];
+    selectedLabels = [...(note.labels || [])];
     uploadedImages = [...(note.images || [])];
     
     // Update UI
@@ -245,8 +272,8 @@ function openEditNoteModal(noteId) {
     renderSelectedLabels();
     renderUploadedImages();
     
-    modalOverlay.classList.add('active');
-    document.querySelector('.modal-header h3').textContent = 'Edit Note';
+    modalOverlay.classList.add('show');
+    document.querySelector('.notes-modal-header h3').textContent = 'Edit Note';
     noteTitleInput.focus();
 }
 
@@ -350,14 +377,16 @@ async function saveNote() {
     }
     
     const noteData = {
+        id: editingNoteId,
         title: title,
         content: content
     };
     
     try {
         if (editingNoteId) {
+            console.log('Updating note with ID:', editingNoteId);
             // Update existing note
-            const response = await fetch(`/DearLock/backend/api/notes.php/${editingNoteId}`, {
+            const response = await fetch(`../backend/api/notes.php`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -381,7 +410,7 @@ async function saveNote() {
             }
         } else {
             // Create new note
-            const response = await fetch('/DearLock/backend/api/notes.php', {
+            const response = await fetch('../backend/api/notes.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -415,9 +444,13 @@ async function saveNote() {
 async function deleteNote(noteId) {
     if (confirm('Are you sure you want to delete this note?')) {
         try {
-            const response = await fetch(`/DearLock/backend/api/notes.php/${noteId}`, {
+            const response = await fetch(`../backend/api/notes.php`, {
                 method: 'DELETE',
-                credentials: 'include'
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({ id: noteId })
             });
             
             const result = await response.json();
@@ -439,21 +472,26 @@ async function deleteNote(noteId) {
 }
 
 async function togglePin(noteId) {
+    console.log('Toggling pin for note ID:', noteId);
     const note = notes.find(n => n.id == noteId);
     if (note) {
         const newPinnedState = !note.is_pinned;
         
         try {
-            const response = await fetch(`/DearLock/backend/api/notes.php/${noteId}`, {
+            const response = await fetch(`../backend/api/notes.php`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify({ is_pinned: newPinnedState })
+                body: JSON.stringify({ 
+                    id: noteId,
+                    is_pinned: newPinnedState 
+                })
             });
             
             const result = await response.json();
+            console.log('Pin toggle response:', result);
             
             if (result.success) {
                 // Update local note
@@ -461,6 +499,7 @@ async function togglePin(noteId) {
                 renderNotes();
                 showNotification(newPinnedState ? 'Note pinned!' : 'Note unpinned!');
             } else {
+                console.error('Pin toggle failed:', result.message);
                 showNotification('Failed to update note: ' + result.message);
             }
         } catch (error) {
@@ -472,14 +511,20 @@ async function togglePin(noteId) {
 
 function renderNotes() {
     console.log('Rendering notes. Filtered notes:', filteredNotes);
-    const pinnedNotes = filteredNotes.filter(note => note.is_pinned);
-    const regularNotes = filteredNotes.filter(note => !note.is_pinned);
+    const pinnedNotes = filteredNotes.filter(note => note.is_pinned == '1' || note.is_pinned === 1 || note.is_pinned === true);
+    const regularNotes = filteredNotes.filter(note => note.is_pinned != '1' && note.is_pinned !== 1 && note.is_pinned !== true);
     console.log('Pinned notes:', pinnedNotes.length, 'Regular notes:', regularNotes.length);
     
     // Show/hide pinned section
     const pinnedSection = document.querySelector('.pinned-section');
     if (pinnedSection) {
         pinnedSection.style.display = pinnedNotes.length > 0 ? 'block' : 'none';
+    }
+    
+    // Show/hide regular notes section
+    const notesSection = document.querySelector('.notes-section');
+    if (notesSection) {
+        notesSection.style.display = regularNotes.length > 0 || filteredNotes.length === 0 ? 'block' : 'none';
     }
     
     // Render pinned notes
@@ -489,8 +534,8 @@ function renderNotes() {
     
     // Render regular notes
     if (notesGrid) {
-        if (regularNotes.length === 0) {
-            console.log('No regular notes, showing empty message');
+        if (regularNotes.length === 0 && pinnedNotes.length === 0) {
+            console.log('No notes at all, showing empty message');
             notesGrid.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--light-gray-70);">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor" style="margin-bottom: 1rem;">
@@ -500,6 +545,9 @@ function renderNotes() {
                     <p>Start creating your first note by clicking the + button</p>
                 </div>
             `;
+        } else if (regularNotes.length === 0) {
+            console.log('No regular notes, but have pinned notes');
+            notesGrid.innerHTML = '';
         } else {
             console.log('Rendering', regularNotes.length, 'regular notes');
             const noteCards = regularNotes.map(note => createNoteCard(note));
@@ -522,11 +570,26 @@ function createNoteCard(note) {
     
     const cardHtml = `
         <div class="note-card ${note.is_pinned ? 'pinned' : ''}" ${backgroundAttr} onclick="openEditNoteModal('${note.id}')">
-            <button class="pin-btn" onclick="event.stopPropagation(); togglePin('${note.id}')" title="${note.is_pinned ? 'Unpin note' : 'Pin note'}">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z"/>
-                </svg>
-            </button>
+            <div class="note-actions-top">
+                <button class="action-btn pin-btn ${note.is_pinned ? 'pinned' : ''}" onclick="event.stopPropagation(); togglePin('${note.id}')" title="${note.is_pinned ? 'Unpin note' : 'Pin note'}">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z"/>
+                    </svg>
+                </button>
+                <button class="action-btn edit-btn" onclick="event.stopPropagation(); openEditNoteModal('${note.id}')" title="Edit">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                </button>
+                <button class="action-btn delete-btn" onclick="event.stopPropagation(); deleteNote('${note.id}')" title="Delete">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <polyline points="3,6 5,6 21,6" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" stroke-width="2"/>
+                        <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+            </div>
             
             <h3 class="note-title">${escapeHtml(note.title)}</h3>
             
@@ -552,25 +615,6 @@ function createNoteCard(note) {
             
             <div class="note-footer">
                 <span class="note-date">${formattedDate}</span>
-                <div class="note-actions">
-                    <button class="action-btn" onclick="event.stopPropagation(); shareNote('${note.id}')" title="Share">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                            <circle cx="18" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="6" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="18" cy="19" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" stroke-width="2"/>
-                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                    </button>
-                    <button class="action-btn" onclick="event.stopPropagation(); deleteNote('${note.id}')" title="Delete">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                            <polyline points="3,6 5,6 21,6" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" stroke-width="2"/>
-                            <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                    </button>
-                </div>
             </div>
         </div>
     `;
@@ -607,31 +651,8 @@ function filterByLabel(label) {
 }
 
 function shareNote(noteId) {
-    const note = notes.find(n => n.id === noteId);
-    if (!note) return;
-    
-    const shareText = `${note.title}\n\n${note.content}`;
-    
-    if (navigator.share) {
-        navigator.share({
-            title: note.title,
-            text: shareText
-        }).catch(console.error);
-    } else {
-        // Fallback - copy to clipboard
-        navigator.clipboard.writeText(shareText).then(() => {
-            showNotification('Note copied to clipboard!');
-        }).catch(() => {
-            // Further fallback
-            const textarea = document.createElement('textarea');
-            textarea.value = shareText;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            showNotification('Note copied to clipboard!');
-        });
-    }
+    // Share functionality removed
+    console.log('Share functionality has been removed');
 }
 
 function updateNotesCount() {
@@ -645,7 +666,7 @@ function updateNotesCount() {
 async function loadNotesFromBackend() {
     console.log('Loading notes from backend...');
     try {
-        const response = await fetch('/DearLock/backend/api/notes.php', {
+        const response = await fetch('../backend/api/notes.php', {
             method: 'GET',
             credentials: 'include'
         });
@@ -682,23 +703,13 @@ async function loadNotesFromBackend() {
 
 function formatDate(dateString) {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 1) {
-        return 'Today';
-    } else if (diffDays === 2) {
-        return 'Yesterday';
-    } else if (diffDays <= 7) {
-        return `${diffDays - 1} days ago`;
-    } else {
-        return date.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric',
-            year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-        });
-    }
+    // Always show the actual date with year
+    return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: 'numeric'
+    });
 }
 
 function escapeHtml(text) {
