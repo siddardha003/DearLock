@@ -32,22 +32,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     
     try {
-        $query = "INSERT INTO todos (user_id, title, description, priority, total_steps, created_at, updated_at) 
-                  VALUES (:user_id, :title, :description, :priority, :total_steps, NOW(), NOW())";
+        $query = "INSERT INTO todos (user_id, title, priority, due_date, created_at, updated_at) 
+                  VALUES (:user_id, :title, :priority, :due_date, NOW(), NOW())";
         
         $stmt = $db->prepare($query);
         
         // Prepare variables for binding
         $title = $data['title'];
-        $description = $data['description'] ?? null;
         $priority = $data['priority'] ?? 'medium';
-        $totalSteps = $data['total_steps'] ?? 1;
+        $dueDate = $data['due_date'] ?? null;
         
         $stmt->bindParam(':user_id', $userId);
         $stmt->bindParam(':title', $title);
-        $stmt->bindParam(':description', $description);
         $stmt->bindParam(':priority', $priority);
-        $stmt->bindParam(':total_steps', $totalSteps);
+        $stmt->bindParam(':due_date', $dueDate);
         
         $stmt->execute();
         $todoId = $db->lastInsertId();
@@ -83,24 +81,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $params[':title'] = $data['title'];
         }
         
-        if (isset($data['description'])) {
-            $updateFields[] = "description = :description";
-            $params[':description'] = $data['description'];
-        }
-        
         if (isset($data['priority'])) {
             $updateFields[] = "priority = :priority";
             $params[':priority'] = $data['priority'];
         }
         
-        if (isset($data['total_steps'])) {
-            $updateFields[] = "total_steps = :total_steps";
-            $params[':total_steps'] = $data['total_steps'];
-        }
-        
-        if (isset($data['completed_steps'])) {
-            $updateFields[] = "completed_steps = :completed_steps";
-            $params[':completed_steps'] = $data['completed_steps'];
+        if (isset($data['due_date'])) {
+            $updateFields[] = "due_date = :due_date";
+            $params[':due_date'] = $data['due_date'];
         }
         
         if (isset($data['is_completed'])) {

@@ -84,6 +84,8 @@
         /* Ensure app content has proper spacing for bottom nav */
         .app-content {
             padding-bottom: 90px !important; /* Space for bottom nav + some extra */
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
         }
         
         /* Todo specific styles */
@@ -153,6 +155,177 @@
         .empty-state h3 {
             margin-bottom: 10px;
             color: #333;
+        }
+        
+        /* Todo Item Styles */
+        .todo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: white;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .todo-item:hover {
+            box-shadow: 0 4px 15px rgba(232, 180, 184, 0.15);
+            border-color: rgba(232, 180, 184, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .todo-item.completed {
+            opacity: 0.7;
+            background: #f8f9fa;
+        }
+        
+        .todo-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .todo-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #E8B4B8;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .todo-checkbox.checked {
+            background: #E8B4B8;
+            color: white;
+        }
+        
+        .todo-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            margin: 0;
+            word-break: break-word;
+        }
+        
+        .todo-item.completed .todo-title {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .todo-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .todo-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+        
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .todo-item:hover .delete-btn {
+            opacity: 1;
+        }
+        
+        .todo-due-date {
+            font-size: 12px;
+            color: #666;
+            white-space: nowrap;
+        }
+        
+        .todo-due-date.overdue {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .todo-due-date.due-today {
+            color: #f39c12;
+            font-weight: 600;
+        }
+        
+        .todo-priority {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .todo-priority.high {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+        
+        .todo-priority.medium {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+        }
+        
+        .todo-priority.low {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+        }
+        
+        .todos-list {
+            margin-bottom: 10px;
+        }
+        
+        .completed-section {
+            margin-top: 10px;
+        }
+        
+        .completed-list .todo-item {
+            border-color: #e0e0e0;
+            background: #fafafa;
+        }
+        
+        .completed-list .todo-right {
+            display: none; /* Hide due date and priority for completed tasks */
+        }
+        
+        /* Search Bar Focus Styles */
+        #searchInput:focus {
+            outline: none !important;
+            border-color: #E8B4B8 !important;
+            box-shadow: 0 0 0 3px rgba(232, 180, 184, 0.1) !important;
+        }
+        
+        .search-bar:focus-within svg {
+            color: #E8B4B8 !important;
         }
         
         /* Todo Modal Styles */
@@ -285,12 +458,13 @@
             <!-- Header -->
             <div class="app-header">
                 <div class="header-left">
-                    <button class="back-btn" onclick="window.location.href='dashboard.html'" title="Back to Dashboard">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.42-1.41L7.83 13H20v-2z"/>
-                        </svg>
+                    <span style="font-size: 24px; margin-bottom: 5px;">🔐</span>
+                    <span style="font-size: 22px; font-weight: bold; color: white;">DearLock</span>
+                </div>
+                <div class="header-right">
+                    <button class="back-btn" onclick="window.location.href='dashboard.html'" title="Back to Dashboard" style="background: none; border: none; color: white; text-align: center; font-size: 16px; cursor: pointer; padding: 8px;">
+                        ← Back
                     </button>
-                    <span class="page-title">To-Do</span>
                 </div>
             </div>
 
@@ -298,14 +472,34 @@
             <div class="app-content">
                 <!-- Search Bar -->
                 <div class="search-bar" style="margin-bottom: 20px;">
-                    <input type="text" id="searchInput" placeholder="Search todos..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 20px;">
+                    <div style="position: relative;">
+                        <input type="text" id="searchInput" placeholder="Search todos by title..." style="width: 100%; padding: 12px 45px 12px 15px; border: 2px solid #f0f0f0; border-radius: 25px; font-size: 16px; transition: border-color 0.3s ease; background: white;">
+                        <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #999; pointer-events: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </div>
                 </div>
 
-                <!-- Todo Items -->
-                <div id="todos-container">
-                    <div class="empty-state">
-                        <h3>No todos yet</h3>
-                        <p>Click the + button to add your first task!</p>
+                <!-- Active Tasks Section -->
+                <div class="tasks-section">
+                    <h3 style="color: var(--text-color); margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">
+                        ✅ Active Tasks
+                    </h3>
+                    <div id="active-todos-container" class="todos-list">
+                        <div class="empty-state">
+                            <h3>No active tasks</h3>
+                            <p>Click the + button to add your first task!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completed Tasks Section -->
+                <div class="completed-section" style="display: none;">
+                    <h3 style="color: var(--text-color); margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">
+                        ✅ Completed Tasks
+                    </h3>
+                    <div id="completed-todos-container" class="todos-list completed-list">
                     </div>
                 </div>
             </div>
@@ -328,8 +522,9 @@
                 </button>
                 
                 <button class="tab active">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2.5-5H18V4c0-.55-.45-1-1-1h-2c-.55 0-1 .45-1 1v2H8V4c0-.55-.45-1-1-1H5c-.55 0-1 .45-1 1v2H2.5C1.67 6 1 6.67 1 7.5S1.67 9 2.5 9H3v9c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9h.5c.83 0 1.5-.67 1.5-1.5S20.83 6 20 6h-.5z"/>
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="3" y="5" width="18" height="14" rx="2"/>
+                        <path d="M8 12l2 2 4-4" stroke="white" stroke-width="2"/>
                     </svg>
                     <span>To-do</span>
                 </button>
@@ -377,9 +572,14 @@
                                 <label for="todoPriority">Priority</label>
                                 <select id="todoPriority" name="priority">
                                     <option value="low">Low</option>
-                                    <option value="medium">Medium</option>
+                                    <option value="medium" selected>Medium</option>
                                     <option value="high">High</option>
                                 </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="todoDueDate">Due Date (Optional)</label>
+                                <input type="date" id="todoDueDate" name="due_date" style="color-scheme: light;">
                             </div>
                             
                             <div class="form-buttons">

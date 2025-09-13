@@ -208,25 +208,8 @@ class TodoApp {
     if (!todo) return;
 
     document.getElementById('todoTitle').value = todo.title;
-    document.getElementById('todoDescription').value = todo.description || '';
-    document.getElementById('dueDate').value = todo.dueDate || '';
-
-    // Set theme
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-      btn.classList.remove('active');
-    });
-    document.querySelector(`[data-theme="${todo.theme}"]`).classList.add('active');
-    this.currentTheme = todo.theme;
-
-    // Populate tasks
-    this.resetTasks();
-    todo.tasks.forEach((task, index) => {
-      if (index === 0) {
-        document.querySelector('.task-input').value = task.text;
-      } else {
-        this.addTaskInput(task.text);
-      }
-    });
+    document.getElementById('todoPriority').value = todo.priority || 'medium';
+    document.getElementById('todoDueDate').value = todo.due_date || '';
   }
 
   resetTasks() {
@@ -283,6 +266,7 @@ class TodoApp {
   async saveTodo() {
     const title = document.getElementById('todoTitle').value.trim();
     const priority = document.getElementById('todoPriority')?.value || 'medium';
+    const dueDate = document.getElementById('todoDueDate')?.value || null;
 
     if (!title) {
       alert('Please enter a title for your todo.');
@@ -291,9 +275,8 @@ class TodoApp {
 
     const todoData = {
       title,
-      description: '', // Empty description since form doesn't have this field
       priority,
-      total_steps: 1 // Default to 1 step for simplified todos
+      due_date: dueDate
     };
 
     try {
@@ -301,7 +284,7 @@ class TodoApp {
       if (this.isEditing) {
         // Update existing todo
         todoData.id = this.editingId;
-        response = await fetch('/DearLock/backend/api/todos.php', {
+        response = await fetch('../backend/api/todos.php', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -311,7 +294,7 @@ class TodoApp {
         });
       } else {
         // Create new todo
-        response = await fetch('/DearLock/backend/api/todos.php', {
+        response = await fetch('../backend/api/todos.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -341,7 +324,7 @@ class TodoApp {
   async deleteTodo(todoId) {
     if (confirm('Are you sure you want to delete this todo? This action cannot be undone.')) {
       try {
-        const response = await fetch('/DearLock/backend/api/todos.php', {
+        const response = await fetch('../backend/api/todos.php', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -401,7 +384,7 @@ class TodoApp {
     const newCompletionStatus = !todo.is_completed;
     
     try {
-      const response = await fetch('/DearLock/backend/api/todos.php', {
+      const response = await fetch('../backend/api/todos.php', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -409,8 +392,7 @@ class TodoApp {
         credentials: 'include',
         body: JSON.stringify({ 
           id: todoId, 
-          is_completed: newCompletionStatus,
-          completed_steps: newCompletionStatus ? todo.total_steps : 0
+          is_completed: newCompletionStatus
         })
       });
 
@@ -425,44 +407,6 @@ class TodoApp {
       }
     } catch (error) {
       console.error('Error toggling todo completion:', error);
-      this.showNotification('Error updating todo', 'error');
-    }
-  }
-
-  async updateTodoProgress(todoId, completedSteps) {
-    const todo = this.todos.find(t => t.id == todoId);
-    if (!todo) {
-      console.error('Todo not found:', todoId);
-      return;
-    }
-
-    const isCompleted = completedSteps >= todo.total_steps;
-    
-    try {
-      const response = await fetch('/DearLock/backend/api/todos.php', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ 
-          id: todoId, 
-          completed_steps: completedSteps,
-          is_completed: isCompleted
-        })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        await this.loadTodos(); // Reload from backend
-        this.renderTodos();
-        this.updateCounts();
-      } else {
-        this.showNotification('Error: ' + result.message, 'error');
-      }
-    } catch (error) {
-      console.error('Error updating todo progress:', error);
       this.showNotification('Error updating todo', 'error');
     }
   }
@@ -482,34 +426,34 @@ class TodoApp {
     const completedTodos = filteredTodos.filter(todo => this.isCompletedTodo(todo));
     console.log('Active todos:', activeTodos.length, 'Completed todos:', completedTodos.length);
 
-    // Use the single container that exists in HTML
-    const container = document.getElementById('todos-container');
-    if (!container) {
-      console.error('todos-container element not found!');
-      return;
+    // Render active todos
+    const activeContainer = document.getElementById('active-todos-container');
+    if (activeContainer) {
+      if (activeTodos.length === 0) {
+        activeContainer.innerHTML = `
+          <div class="empty-state" style="text-align: center; padding: 40px;">
+            <h3>No active tasks</h3>
+            <p>Click the + button to create your first todo!</p>
+          </div>
+        `;
+      } else {
+        const activeCards = activeTodos.map(todo => this.createTodoCard(todo, false));
+        activeContainer.innerHTML = activeCards.join('');
+      }
     }
 
-    // Combine all todos and render them
-    const allTodos = [...activeTodos, ...completedTodos];
-    
-    if (allTodos.length === 0) {
-      console.log('No todos to display, showing empty state');
-      container.innerHTML = `
-        <div class="empty-state" style="text-align: center; padding: 40px;">
-          <h3>No todos yet</h3>
-          <p>Click the + button to create your first todo!</p>
-        </div>
-      `;
-      return;
+    // Render completed todos
+    const completedContainer = document.getElementById('completed-todos-container');
+    const completedSection = document.querySelector('.completed-section');
+    if (completedContainer && completedSection) {
+      if (completedTodos.length === 0) {
+        completedSection.style.display = 'none';
+      } else {
+        completedSection.style.display = 'block';
+        const completedCards = completedTodos.map(todo => this.createTodoCard(todo, true));
+        completedContainer.innerHTML = completedCards.join('');
+      }
     }
-
-    console.log('Rendering', allTodos.length, 'todos');
-    const todoCards = allTodos.map(todo => this.createTodoCard(todo));
-    console.log('Generated todo cards:', todoCards.length);
-    const joinedHtml = todoCards.join('');
-    console.log('Final HTML length:', joinedHtml.length);
-    container.innerHTML = joinedHtml;
-    console.log('innerHTML set. Container content length:', container.innerHTML.length);
   }
 
   renderTodoSection(containerId, todos) {
@@ -535,53 +479,107 @@ class TodoApp {
     this.bindCardEvents(container);
   }
 
-  createTodoCard(todo) {
-    console.log('Creating todo card for:', todo);
-    const progress = this.calculateProgress(todo);
-    const isCompleted = this.isCompletedTodo(todo);
-    const priorityClass = `priority-${todo.priority || 'medium'}`;
+  createTodoCard(todo, isCompleted = false) {
+    const dueDate = todo.due_date ? this.formatDueDate(todo.due_date) : null;
+    const dueDateClass = this.getDueDateClass(todo.due_date);
     
     return `
-      <div class="todo-card ${priorityClass} ${isCompleted ? 'completed' : ''}" data-id="${todo.id}" style="background: white; padding: 20px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;">
-        <div class="todo-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <h3 class="todo-title" style="margin: 0; color: #333;">${this.escapeHtml(todo.title)}</h3>
-          <div class="todo-actions" style="display: flex; gap: 5px;">
-            <button class="action-btn edit-btn" onclick="event.stopPropagation(); window.todoApp.editTodo(${todo.id})" title="Edit" style="background: none; border: none; color: #666; cursor: pointer; padding: 5px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-              </svg>
-            </button>
-            <button class="action-btn delete-btn" onclick="event.stopPropagation(); window.todoApp.deleteTodo(${todo.id})" title="Delete" style="background: none; border: none; color: #666; cursor: pointer; padding: 5px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-              </svg>
-            </button>
+      <div class="todo-item ${isCompleted ? 'completed' : ''}" data-id="${todo.id}">
+        <div class="todo-left">
+          <div class="todo-checkbox ${isCompleted ? 'checked' : ''}" onclick="window.todoApp.toggleTodoCompletion(${todo.id})">
+            ${isCompleted ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.41 1.41L9 19 21 7l-1.41-1.41z"/></svg>' : ''}
           </div>
+          <h3 class="todo-title">${this.escapeHtml(todo.title)}</h3>
         </div>
-
-        ${todo.description ? `<p class="todo-description" style="margin: 0 0 15px 0; color: #666;">${this.escapeHtml(todo.description)}</p>` : ''}
-
-        <div class="todo-progress" style="margin-bottom: 15px;">
-          <div class="progress-info" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-            <span class="progress-text" style="font-size: 12px; color: #666;">${todo.completed_steps || 0}/${todo.total_steps || 1} steps completed</span>
-            <span class="progress-percentage" style="font-size: 12px; color: #666;">${progress}%</span>
+        
+        <div class="todo-right">
+          <div class="todo-info">
+            ${!isCompleted && dueDate ? `<span class="todo-due-date ${dueDateClass}">${dueDate}</span>` : ''}
+            ${!isCompleted ? `<span class="todo-priority ${todo.priority || 'medium'}">${(todo.priority || 'medium').toUpperCase()}</span>` : ''}
           </div>
-          <div class="progress-bar" style="background: #f0f0f0; height: 6px; border-radius: 3px; overflow: hidden;">
-            <div class="progress-fill" style="background: ${isCompleted ? '#4CAF50' : '#E8B4B8'}; height: 100%; width: ${progress}%; transition: width 0.3s ease;"></div>
-          </div>
-        </div>
-
-        <div class="todo-footer" style="display: flex; justify-content: space-between; align-items: center;">
-          <div class="todo-meta" style="display: flex; gap: 10px; font-size: 12px; color: #999;">
-            <span class="priority" style="background: ${this.getPriorityColor(todo.priority)}; color: white; padding: 2px 6px; border-radius: 10px; text-transform: uppercase;">${todo.priority || 'medium'}</span>
-            <span class="created-date">Created: ${new Date(todo.created_at).toLocaleDateString()}</span>
-          </div>
-          <button class="toggle-completion" onclick="event.stopPropagation(); window.todoApp.toggleTodoCompletion(${todo.id})" style="background: ${isCompleted ? '#4CAF50' : '#E8B4B8'}; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 12px;">
-            ${isCompleted ? 'Mark Incomplete' : 'Mark Complete'}
+          <button class="delete-btn" onclick="window.todoApp.deleteTodo(${todo.id})" title="Delete todo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
           </button>
         </div>
       </div>
     `;
+  }
+  
+  formatDueDate(dateString) {
+    if (!dateString) return null;
+    
+    // Try different date parsing approaches to avoid timezone issues
+    let date;
+    if (dateString.includes('T')) {
+      // ISO format with time
+      date = new Date(dateString);
+    } else {
+      // Date only format (YYYY-MM-DD) - avoid timezone issues
+      const parts = dateString.split('-');
+      if (parts.length === 3) {
+        date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      } else {
+        date = new Date(dateString);
+      }
+    }
+    
+    const now = new Date();
+    
+    // Normalize dates to compare only the date part, not time
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const diffTime = dateOnly - nowOnly;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      return `Overdue by ${Math.abs(diffDays)} day${Math.abs(diffDays) !== 1 ? 's' : ''}`;
+    } else if (diffDays === 0) {
+      return 'Due today';
+    } else if (diffDays === 1) {
+      return 'Due tomorrow';
+    } else if (diffDays <= 7) {
+      return `Due in ${diffDays} days`;
+    } else {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+  }
+  
+  getDueDateClass(dateString) {
+    if (!dateString) return '';
+    
+    // Try different date parsing approaches (same as formatDueDate)
+    let date;
+    if (dateString.includes('T')) {
+      // ISO format with time
+      date = new Date(dateString);
+    } else {
+      // Date only format (YYYY-MM-DD) - avoid timezone issues
+      const parts = dateString.split('-');
+      if (parts.length === 3) {
+        date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      } else {
+        date = new Date(dateString);
+      }
+    }
+    
+    const now = new Date();
+    
+    // Normalize dates to compare only the date part, not time
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const diffTime = dateOnly - nowOnly;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return 'overdue';
+    if (diffDays === 0) return 'due-today';
+    return '';
   }
 
   getPriorityColor(priority) {
@@ -596,54 +594,12 @@ class TodoApp {
   // Remove the old renderTodoSection function since we're using a single container now
 
   bindCardEvents(container) {
-    // Edit buttons
-    container.querySelectorAll('.edit-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const todoId = parseInt(btn.closest('.todo-card').dataset.id);
-        this.openModal(todoId);
-      });
-    });
-
     // Delete buttons
     container.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const todoId = parseInt(btn.closest('.todo-card').dataset.id);
+        const todoId = parseInt(btn.closest('.todo-item').dataset.id);
         this.deleteTodo(todoId);
-      });
-    });
-
-    // Duplicate buttons
-    container.querySelectorAll('.duplicate-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const todoId = parseInt(btn.closest('.todo-card').dataset.id);
-        this.duplicateTodo(todoId);
-      });
-    });
-
-    // Task checkboxes
-    container.querySelectorAll('.task-checkbox').forEach(checkbox => {
-      checkbox.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const todoId = parseInt(checkbox.closest('.todo-card').dataset.id);
-        const taskId = parseFloat(checkbox.dataset.taskId);
-        
-        // Debug logging
-        console.log('Checkbox clicked - todoId:', todoId, 'taskId:', taskId);
-        
-        this.toggleTask(todoId, taskId);
-      });
-    });
-
-    // Card click to edit
-    container.querySelectorAll('.todo-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (!e.target.closest('.todo-actions') && !e.target.closest('.task-checkbox')) {
-          const todoId = parseInt(card.dataset.id);
-          this.openModal(todoId);
-        }
       });
     });
   }
@@ -656,15 +612,14 @@ class TodoApp {
     if (this.searchTerm) {
       filtered = filtered.filter(todo => 
         todo.title.toLowerCase().includes(this.searchTerm) ||
-        todo.description.toLowerCase().includes(this.searchTerm) ||
-        todo.tasks.some(task => task.text.toLowerCase().includes(this.searchTerm))
+        (todo.priority && todo.priority.toLowerCase().includes(this.searchTerm))
       );
     }
 
     // Apply status filter
     switch (this.currentFilter) {
       case 'in-progress':
-        filtered = filtered.filter(todo => !this.isCompletedTodo(todo) && this.calculateProgress(todo) > 0);
+        filtered = filtered.filter(todo => !this.isCompletedTodo(todo));
         break;
       case 'completed':
         filtered = filtered.filter(todo => this.isCompletedTodo(todo));
@@ -676,11 +631,6 @@ class TodoApp {
     }
 
     return filtered;
-  }
-
-  calculateProgress(todo) {
-    if (!todo.total_steps || todo.total_steps === 0) return 0;
-    return Math.round((todo.completed_steps / todo.total_steps) * 100);
   }
 
   isCompletedTodo(todo) {
@@ -735,7 +685,7 @@ class TodoApp {
   async loadTodos() {
     console.log('Loading todos from backend...');
     try {
-      const response = await fetch('/DearLock/backend/api/todos.php', {
+      const response = await fetch('../backend/api/todos.php', {
         method: 'GET',
         credentials: 'include'
       });

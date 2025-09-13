@@ -56,7 +56,7 @@ async function loadDashboardStats() {
         if (todosResponse.ok) {
             const todosResult = await todosResponse.json();
             if (todosResult.success) {
-                const completedTodos = todosResult.data.filter(todo => todo.status === 'completed').length;
+                const completedTodos = todosResult.data.filter(todo => todo.is_completed === 1 || todo.is_completed === true).length;
                 document.getElementById('todosCount').textContent = `${completedTodos}/${todosResult.data.length} completed`;
             }
         }
