@@ -1,18 +1,22 @@
 <?php
 // Simple API configuration without router
+// Prevent any output before headers
+ob_start();
+
 // Start session with secure settings
 session_start([
     'cookie_lifetime' => 86400, // 24 hours
     'cookie_secure' => false,   // Set to true in production with HTTPS
     'cookie_httponly' => true,
-    'cookie_samesite' => 'Strict'
+    'cookie_samesite' => 'Lax', // Changed from Strict to Lax for better compatibility
+    'cookie_path' => '/'        // Ensure path is set to root
 ]);
 
 // Set headers for API responses
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost'); // Changed from * to specific origin
+header('Access-Control-Allow-Origin: http://localhost');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
 
 // Handle preflight requests
@@ -27,6 +31,7 @@ require_once __DIR__ . '/config/database.php';
 // API Response helper class
 class ApiResponse {
     public static function success($data = null, $message = 'Success', $code = 200) {
+        ob_clean(); // Clear any output buffer
         http_response_code($code);
         echo json_encode([
             'success' => true,
@@ -38,6 +43,7 @@ class ApiResponse {
     }
     
     public static function error($message = 'Error', $code = 400, $errors = null) {
+        ob_clean(); // Clear any output buffer
         http_response_code($code);
         echo json_encode([
             'success' => false,
@@ -52,9 +58,22 @@ class ApiResponse {
 // Authentication helper class
 class Auth {
     public static function requireAuth() {
+        // Check if session exists
         if (!isset($_SESSION['user_id'])) {
             ApiResponse::error('Authentication required', 401);
         }
+        
+        // Check for session timeout (optional - 24 hours)
+        if (isset($_SESSION['last_activity'])) {
+            $timeout = 24 * 60 * 60; // 24 hours
+            if (time() - $_SESSION['last_activity'] > $timeout) {
+                session_destroy();
+                ApiResponse::error('Session expired', 401);
+            }
+        }
+        
+        // Update last activity
+        $_SESSION['last_activity'] = time();
     }
     
     public static function getCurrentUserId() {

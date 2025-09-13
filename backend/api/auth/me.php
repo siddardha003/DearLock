@@ -1,5 +1,9 @@
 <?php
 // Profile endpoints (me, update profile)
+// Suppress errors to prevent HTML output
+error_reporting(0);
+ini_set('display_errors', 0);
+
 require_once __DIR__ . '/../../api_config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -34,6 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     Auth::requireAuth();
     
     $input = json_decode(file_get_contents('php://input'), true);
+    
+    if (!$input) {
+        ApiResponse::error('Invalid JSON input', 400);
+    }
+    
     $database = new Database();
     $db = $database->connect();
     
@@ -63,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         
         if ($stmt->execute($params)) {
             // Get updated user data
-            $userQuery = "SELECT id, username, email, full_name, bio, profile_icon, font_family FROM users WHERE id = :id";
+            $userQuery = "SELECT id, username, email, full_name, profile_icon, font_family FROM users WHERE id = :id";
             $userStmt = $db->prepare($userQuery);
             $userId = Auth::getCurrentUserId();
             $userStmt->bindParam(':id', $userId);
@@ -75,7 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             ApiResponse::error('Failed to update profile');
         }
     } catch (PDOException $e) {
-        ApiResponse::error('Failed to update profile', 500);
+        error_log('Profile update error: ' . $e->getMessage());
+        ApiResponse::error('Failed to update profile: ' . $e->getMessage(), 500);
+    } catch (Exception $e) {
+        error_log('General error in profile update: ' . $e->getMessage());
+        ApiResponse::error('An error occurred: ' . $e->getMessage(), 500);
     }
 
 } else {

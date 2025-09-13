@@ -1,5 +1,9 @@
 <?php
 // Change password endpoint
+// Suppress errors to prevent HTML output
+error_reporting(0);
+ini_set('display_errors', 0);
+
 require_once __DIR__ . '/../../api_config.php';
 
 // Only allow PUT requests
@@ -10,6 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
 Auth::requireAuth();
 
 $input = json_decode(file_get_contents('php://input'), true);
+
+if (!$input) {
+    ApiResponse::error('Invalid JSON input', 400);
+}
 
 if (!Validator::required($input['current_password'] ?? '')) {
     ApiResponse::error('Current password is required');
@@ -52,6 +60,10 @@ try {
         ApiResponse::error('Failed to change password');
     }
 } catch (PDOException $e) {
-    ApiResponse::error('Failed to change password', 500);
+    error_log('Password change error: ' . $e->getMessage());
+    ApiResponse::error('Failed to change password: ' . $e->getMessage(), 500);
+} catch (Exception $e) {
+    error_log('General error in password change: ' . $e->getMessage());
+    ApiResponse::error('An error occurred: ' . $e->getMessage(), 500);
 }
 ?>

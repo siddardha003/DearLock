@@ -180,23 +180,243 @@
             visibility: hidden !important;
         }
         
+        /* Simple Diary Entry Styles */
+        .diary-entry {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            position: relative;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .diary-entry:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .diary-entry h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .diary-entry p {
+            margin: 0 0 15px 0;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .entry-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .entry-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            background: transparent;
+            min-width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn.edit {
+            color: #4CAF50;
+        }
+
+        .action-btn.edit:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .action-btn.delete {
+            color: #f44336;
+        }
+
+        .action-btn.delete:hover {
+            background: #f44336;
+            color: white;
+        }
+
+        /* Stop propagation on action buttons */
+        .action-btn {
+            z-index: 10;
+            position: relative;
+        }
+
         /* Entry Modal Styles */
-        .entry-modal {
+        .entry-modal, .view-modal, .edit-modal, .confirm-modal {
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
             background: rgba(0,0,0,0.8) !important;
-            display: none !important; /* Hidden by default */
+            display: none !important;
             align-items: center !important;
             justify-content: center !important;
             z-index: 2000 !important;
             padding: 20px !important;
         }
         
-        .entry-modal.show {
-            display: flex !important; /* Show when .show class is added */
+        .entry-modal.show, .view-modal.show, .edit-modal.show, .confirm-modal.show {
+            display: flex !important;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .view-content {
+            line-height: 1.8;
+            color: #333;
+            font-size: 16px;
+            white-space: pre-wrap;
+        }
+
+        .date-info {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .date-info .created {
+            color: #E8B4B8;
+            font-style: italic;
+        }
+
+        .date-info .updated {
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Confirmation Modal */
+        .confirm-content {
+            text-align: center;
+        }
+
+        .confirm-content h3 {
+            color: #f44336;
+            margin-bottom: 16px;
+        }
+
+        .confirm-content p {
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        /* Search Bar Enhancement */
+        #searchInput:focus {
+            outline: none !important;
+            border-color: #E8B4B8 !important;
+            box-shadow: 0 0 0 3px rgba(232, 180, 184, 0.1) !important;
+        }
+        
+        .search-bar:focus-within svg {
+            color: #E8B4B8 !important;
+        }
+
+        /* Button Styles */
+        .btn-primary, .btn-secondary, .btn-danger {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #E8B4B8;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #d69ba0;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
         }
         
         .entry-content {
@@ -416,22 +636,29 @@
             <div class="app-content" id="diary-content">
                 <!-- Search Bar -->
                 <div class="search-bar" style="margin-bottom: 20px;">
-                    <input type="text" id="searchInput" placeholder="Search diary entries..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 20px;">
+                    <div style="position: relative;">
+                        <input type="text" id="searchInput" placeholder="Search diary entries..." oninput="searchEntries()" style="width: 100%; padding: 12px 45px 12px 15px; border: 2px solid #f0f0f0; border-radius: 25px; font-size: 16px; transition: border-color 0.3s ease; background: white;">
+                        <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #999; pointer-events: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </div>
                 </div>
 
                 <!-- Diary Entries -->
                 <div id="entries-container">
                     <div class="empty-state" style="text-align: center; padding: 40px;">
-                        <h3>No diary entries yet</h3>
-                        <p>Click the + button to write your first entry!</p>
+                        <div style="font-size: 48px; margin-bottom: 16px;">📔</div>
+                        <h3 style="color: #333; margin-bottom: 8px;">No diary entries yet</h3>
+                        <p style="color: #666;">Click the + button to write your first entry!</p>
                     </div>
                 </div>
             </div>
 
             <!-- New Entry Modal -->
-            <div id="entry-modal" class="entry-modal" style="display: none;">
-                <div class="entry-content">
-                    <div class="entry-header">
+            <div id="entry-modal" class="entry-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
                         <h3>New Diary Entry</h3>
                         <button class="close-btn" onclick="closeEntryModal()">&times;</button>
                     </div>
@@ -441,24 +668,68 @@
                             <textarea id="entryContent" placeholder="Write your diary entry here..." rows="8" required></textarea>
                         </div>
                         
-                        <div class="form-group">
-                            <label for="entryMood">Mood</label>
-                            <select id="entryMood">
-                                <option value="">Select mood</option>
-                                <option value="happy">😊 Happy</option>
-                                <option value="sad">😢 Sad</option>
-                                <option value="excited">🤩 Excited</option>
-                                <option value="calm">😌 Calm</option>
-                                <option value="stressed">😰 Stressed</option>
-                                <option value="grateful">🙏 Grateful</option>
-                            </select>
-                        </div>
-                        
                         <div class="form-actions">
                             <button type="button" onclick="closeEntryModal()" class="btn-secondary">Cancel</button>
                             <button type="submit" class="btn-primary">Save Entry</button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- View Entry Modal -->
+            <div id="view-modal" class="view-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="viewEntryTitle">Diary Entry</h3>
+                        <button class="close-btn" onclick="closeViewModal()">&times;</button>
+                    </div>
+                    <div class="date-info">
+                        <div class="created">Written on: <span id="viewCreatedDate"></span></div>
+                        <div class="updated" id="viewUpdatedInfo" style="display: none;">Last edited: <span id="viewUpdatedDate"></span></div>
+                    </div>
+                    <div class="view-content" id="viewEntryContent"></div>
+                    <div class="form-actions">
+                        <button type="button" onclick="editEntry()" class="btn-primary">Edit</button>
+                        <button type="button" onclick="closeViewModal()" class="btn-secondary">Close</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Entry Modal -->
+            <div id="edit-modal" class="edit-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Edit Diary Entry</h3>
+                        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+                    </div>
+                    <div class="date-info">
+                        <div class="created">🗓️ Originally written on: <span id="editCreatedDate"></span></div>
+                    </div>
+                    <form id="editForm">
+                        <div class="form-group">
+                            <label for="editEntryContent">Your thoughts...</label>
+                            <textarea id="editEntryContent" rows="8" required></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" onclick="closeEditModal()" class="btn-secondary">Cancel</button>
+                            <button type="submit" class="btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            <div id="confirm-modal" class="confirm-modal">
+                <div class="modal-content">
+                    <div class="confirm-content">
+                        <h3>🗑️ Delete Entry</h3>
+                        <p>Are you sure you want to delete this diary entry?<br><strong>This action cannot be undone.</strong></p>
+                        <div class="confirm-actions">
+                            <button type="button" onclick="closeConfirmModal()" class="btn-secondary">Cancel</button>
+                            <button type="button" onclick="confirmDelete()" class="btn-danger">Delete</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
