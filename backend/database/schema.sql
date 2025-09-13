@@ -11,7 +11,7 @@ CREATE TABLE users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(100),
-    profile_icon VARCHAR(50) DEFAULT 'avatar1.jpg',
+    profile_icon VARCHAR(50) DEFAULT 'default',
     font_family VARCHAR(50) DEFAULT 'Inter',
     diary_pin VARCHAR(255), -- Bcrypt hash for diary PIN (needs 60+ chars)
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
