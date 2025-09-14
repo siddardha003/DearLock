@@ -3,6 +3,11 @@ document.addEventListener('DOMContentLoaded', function() {
     loadProfileData();
     loadProfileIcon();
     
+    // Load user's font preference and apply it
+    if (typeof loadUserFontPreference === 'function') {
+        loadUserFontPreference();
+    }
+    
     // Set up form handlers
     document.getElementById('editProfileForm').addEventListener('submit', handleEditProfile);
     document.getElementById('changePasswordForm').addEventListener('submit', handleChangePassword);
@@ -137,7 +142,135 @@ function loadProfileIcon() {
 }
 
 function selectFont() {
-    alert('Font selection feature coming soon!');
+    // Load current font preference and highlight it
+    loadCurrentFont();
+    document.getElementById('fontSelectionModal').style.display = 'flex';
+}
+
+let selectedFont = 'Inter'; // Default font
+
+function selectFontOption(fontName) {
+    selectedFont = fontName;
+    
+    // Remove selected class from all options
+    document.querySelectorAll('.font-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Add selected class to clicked option
+    document.querySelector(`[data-font="${fontName}"]`).classList.add('selected');
+    
+    // Apply preview to body temporarily
+    applyFontToBody(fontName);
+}
+
+function applyFontToBody(fontName) {
+    // Remove existing font classes
+    document.body.classList.remove('font-inter', 'font-handwritten', 'font-calligraphy');
+    
+    // Apply new font class
+    switch(fontName) {
+        case 'Inter':
+            document.body.classList.add('font-inter');
+            break;
+        case 'Kalam':
+            document.body.classList.add('font-handwritten');
+            break;
+        case 'Dancing Script':
+            document.body.classList.add('font-calligraphy');
+            break;
+    }
+}
+
+async function saveFontSelection() {
+    try {
+        const fontValue = selectedFont === 'Kalam' ? 'handwritten' : 
+                         selectedFont === 'Dancing Script' ? 'calligraphy' : 'inter';
+        
+        const response = await fetch('../backend/api/auth/me.php', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                font_family: fontValue
+            })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            showMessage('Font preference saved successfully!', 'success');
+            closeModal('fontSelectionModal');
+            
+            // Save to localStorage for immediate use
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            user.font_family = fontValue;
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            // Apply to all open pages
+            applyFontGlobally(fontValue);
+        } else {
+            showMessage(result.message || 'Failed to save font preference', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving font preference:', error);
+        showMessage('Error saving font preference', 'error');
+    }
+}
+
+function loadCurrentFont() {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const currentFont = user.font_family || 'inter';
+        
+        // Map database values to display names
+        const fontMap = {
+            'inter': 'Inter',
+            'handwritten': 'Kalam', 
+            'calligraphy': 'Dancing Script'
+        };
+        
+        selectedFont = fontMap[currentFont] || 'Inter';
+        
+        // Highlight current selection
+        document.querySelectorAll('.font-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+        
+        const currentOption = document.querySelector(`[data-font="${selectedFont}"]`);
+        if (currentOption) {
+            currentOption.classList.add('selected');
+        }
+        
+        // Apply current font
+        applyFontToBody(selectedFont);
+    } catch (error) {
+        console.error('Error loading current font:', error);
+    }
+}
+
+function applyFontGlobally(fontFamily) {
+    // Use the global applyFont function from main.js if available
+    if (typeof applyFont === 'function') {
+        applyFont(fontFamily);
+    } else {
+        // Fallback to local implementation
+        document.body.classList.remove('font-inter', 'font-handwritten', 'font-calligraphy');
+        
+        switch(fontFamily) {
+            case 'inter':
+                document.body.classList.add('font-inter');
+                break;
+            case 'handwritten':
+                document.body.classList.add('font-handwritten');
+                break;
+            case 'calligraphy':
+                document.body.classList.add('font-calligraphy');
+                break;
+        }
+    }
 }
 
 function changeDiaryPin() {

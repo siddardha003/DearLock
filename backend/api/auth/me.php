@@ -63,6 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $params[':email'] = $input['email'];
         }
         
+        if (isset($input['font_family'])) {
+            $allowedFonts = ['inter', 'handwritten', 'calligraphy'];
+            if (in_array($input['font_family'], $allowedFonts)) {
+                $updateFields[] = "font_family = :font_family";
+                $params[':font_family'] = $input['font_family'];
+            } else {
+                ApiResponse::error('Invalid font family. Allowed values: inter, handwritten, calligraphy');
+            }
+        }
+        
         if (empty($updateFields)) {
             ApiResponse::error('No fields to update');
         }

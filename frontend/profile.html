@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - DearLock</title>
+    <link rel="icon" type="image/svg+xml" href="love-letter.svg">
     <link rel="stylesheet" href="css/style.css">
     <style>
         /* Make sure the app-container has relative positioning for absolute children */
@@ -395,6 +396,49 @@
         </div>
     </div>
 
+    <!-- Font Selection Modal -->
+    <div id="fontSelectionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Choose Your Font</h3>
+            <p style="color: #666; margin-bottom: 20px;">Select a font style that will be applied throughout the app</p>
+            
+            <div id="fontOptions">
+                <!-- Inter Font -->
+                <div class="font-option" data-font="Inter" onclick="selectFontOption('Inter')">
+                    <div style="width: 30px; height: 30px; background: var(--dusty-rose); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">A</div>
+                    <div class="font-preview">
+                        <div class="font-name" style="font-family: var(--font-inter);">Inter</div>
+                        <div class="font-sample" style="font-family: var(--font-inter);">Clean, modern, and easy to read</div>
+                    </div>
+                </div>
+                
+                <!-- Handwritten Font -->
+                <div class="font-option" data-font="Kalam" onclick="selectFontOption('Kalam')">
+                    <div style="width: 30px; height: 30px; background: var(--sage-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✍</div>
+                    <div class="font-preview">
+                        <div class="font-name" style="font-family: var(--font-handwritten);">Handwritten</div>
+                        <div class="font-sample" style="font-family: var(--font-handwritten);">Personal and warm, like your own handwriting</div>
+                    </div>
+                </div>
+                
+                <!-- Calligraphy Font -->
+                <div class="font-option" data-font="Dancing Script" onclick="selectFontOption('Dancing Script')">
+                    <div style="width: 30px; height: 30px; background: var(--lavender); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✨</div>
+                    <div class="font-preview">
+                        <div class="font-name" style="font-family: var(--font-calligraphy);">Calligraphy</div>
+                        <div class="font-sample" style="font-family: var(--font-calligraphy);">Elegant and artistic, perfect for creative minds</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('fontSelectionModal')">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveFontSelection()">Apply Font</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
     <script src="js/profile.js"></script>
 </body>
 </html>
