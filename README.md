@@ -2,7 +2,7 @@
 
 A beautiful, Pinterest-inspired personal productivity application that combines diary entries, notes, and todo management in one secure sanctuary. Built with a clean, modern interface and robust backend API.
 
-![DearLock Logo](frontend/love-letter.svg)
+<img src="frontend/love-letter.svg" alt="DearLock Logo" width="80" height="80">
 
 ## ✨ Features
 
