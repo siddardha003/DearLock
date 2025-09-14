@@ -3,7 +3,7 @@ class Database {
     private $host = 'localhost';
     private $db_name = 'dearlock_db';
     private $username = 'root'; // Change as needed
-    private $password = 'password'; // Your phpMyAdmin password
+    private $password = ''; // Your phpMyAdmin password
     private $conn;
     
     public function connect() {
@@ -11,7 +11,7 @@ class Database {
         
         try {
             $this->conn = new PDO(
-                "mysql:host=" . $this->host . ";port=3307;dbname=" . $this->db_name,
+                "mysql:host=" . $this->host . ";dbname=" . $this->db_name,
                 $this->username,
                 $this->password
             );

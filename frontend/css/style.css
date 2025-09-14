@@ -1,4 +1,5 @@
 /* DearLock - Simple & Clean Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Kalam:wght@300;400;700&family=Dancing+Script:wght@400;500;600;700&display=swap');
 
 :root {
     --cream: #F8F6F0;
@@ -12,6 +13,11 @@
     --white: #ffffff;
     --border: #e1e5e9;
     --shadow: 0 2px 4px rgba(0,0,0,0.1);
+    
+    /* Font family variables */
+    --font-inter: 'Inter', sans-serif;
+    --font-handwritten: 'Kalam', cursive;
+    --font-calligraphy: 'Dancing Script', cursive;
 }
 
 * {
@@ -26,7 +32,7 @@ html, body {
 }
 
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: var(--font-inter);
     background-color: var(--cream);
     color: var(--text-dark);
     line-height: 1.6;
@@ -818,6 +824,71 @@ body {
     body {
         overflow: hidden;
     }
+}
+
+/* Font classes for dynamic application */
+.font-inter {
+    font-family: var(--font-inter) !important;
+}
+
+.font-handwritten {
+    font-family: var(--font-handwritten) !important;
+}
+
+.font-calligraphy {
+    font-family: var(--font-calligraphy) !important;
+}
+
+/* Apply font to all text elements when class is added to body */
+body.font-inter, body.font-inter * {
+    font-family: var(--font-inter) !important;
+}
+
+body.font-handwritten, body.font-handwritten * {
+    font-family: var(--font-handwritten) !important;
+}
+
+body.font-calligraphy, body.font-calligraphy * {
+    font-family: var(--font-calligraphy) !important;
+}
+
+/* Font selection modal styles */
+.font-option {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin: 10px 0;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.font-option:hover {
+    border-color: var(--dusty-rose);
+    background: var(--gentle-pink);
+}
+
+.font-option.selected {
+    border-color: var(--dusty-rose);
+    background: var(--gentle-pink);
+}
+
+.font-preview {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.font-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.font-sample {
+    font-size: 14px;
+    color: var(--text-light);
 }
 
 /* Animations */
