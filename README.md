@@ -1,21 +1,27 @@
-# 🔒 DearLock - Your Personal Sanctuary
+# DearLock - Your Personal Sanctuary
 
-A beautiful, Pinterest-inspired personal productivity application that combines diary entries, notes, and todo management in one secure sanctuary. Built with a clean, modern interface and robust backend API.
+<table>
+<tr>
+<td width="70%">
+Description: A beautiful, Pinterest-inspired personal productivity application that combines diary entries, notes, and todo management in one secure sanctuary. Built with a clean, modern interface and robust backend API.
+</td>
+<td width="30%" align="center">
 
 <img src="frontend/love-letter.svg" alt="DearLock Logo" width="80" height="80">
+
+</td>
+</tr>
+</table>
 
 ## ✨ Features
 
 ### 📔 Diary Management
 - **Secure Diary Entries**: Write personal thoughts and memories with PIN protection
 - **Date-based Organization**: View entries by specific dates
-- **CRUD Operations**: Create, read, update, and delete diary entries
 - **Beautiful Interface**: Clean, card-based UI with modern styling
 
 ### 📝 Notes System
 - **Rich Text Notes**: Create detailed notes with beautiful formatting
-- **Category Organization**: Organize notes with customizable categories and colors
-- **Image Support**: Add background images to your notes
 - **Pin Important Notes**: Keep important notes at the top
 - **Search Functionality**: Quickly find notes with powerful search
 
@@ -24,7 +30,6 @@ A beautiful, Pinterest-inspired personal productivity application that combines 
 - **Priority Levels**: Organize tasks by low, medium, and high priority
 - **Due Dates**: Set deadlines for your tasks
 - **Progress Tracking**: Mark tasks as completed
-- **Filter Options**: View tasks by status and priority
 
 ### 👤 Profile Customization
 - **Custom Profiles**: Personalize your account information
