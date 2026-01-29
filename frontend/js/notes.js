@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function checkAuthentication() {
     console.log('Checking authentication...');
     try {
-        const response = await fetch('../backend/api/auth/me.php', {
+        const response = await fetch(`${API_BASE_URL}/auth/me.php`, {
             credentials: 'include'
         });
         
@@ -386,7 +386,7 @@ async function saveNote() {
         if (editingNoteId) {
             console.log('Updating note with ID:', editingNoteId);
             // Update existing note
-            const response = await fetch(`../backend/api/notes.php`, {
+              const response = await fetch(`${API_BASE_URL}/notes.php`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -410,7 +410,7 @@ async function saveNote() {
             }
         } else {
             // Create new note
-            const response = await fetch('../backend/api/notes.php', {
+            const response = await fetch(`${API_BASE_URL}/notes.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -444,7 +444,7 @@ async function saveNote() {
 async function deleteNote(noteId) {
     if (confirm('Are you sure you want to delete this note?')) {
         try {
-            const response = await fetch(`../backend/api/notes.php`, {
+            const response = await fetch(`${API_BASE_URL}/notes.php`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -478,7 +478,7 @@ async function togglePin(noteId) {
         const newPinnedState = !note.is_pinned;
         
         try {
-            const response = await fetch(`../backend/api/notes.php`, {
+            const response = await fetch(`${API_BASE_URL}/notes.php`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -666,7 +666,7 @@ function updateNotesCount() {
 async function loadNotesFromBackend() {
     console.log('Loading notes from backend...');
     try {
-        const response = await fetch('../backend/api/notes.php', {
+        const response = await fetch(`${API_BASE_URL}/notes.php`, {
             method: 'GET',
             credentials: 'include'
         });

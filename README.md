@@ -1,17 +1,18 @@
 # DearLock - Your Personal Sanctuary
 
 <table>
-<tr>
-<td width="70%">
-Description: A beautiful, Pinterest-inspired personal productivity application that combines diary entries, notes, and todo management in one secure sanctuary. Built with a clean, modern interface and robust backend API.
-</td>
-<td width="30%" align="center">
-
-<img src="frontend/love-letter.svg" alt="DearLock Logo" width="80" height="80">
-
-</td>
-</tr>
-</table>
+  <tr>
+    <td width="70%">
+      <p>
+        <b>A beautiful, Pinterest-inspired personal productivity application that combines diary entries, notes, and todo management in one secure sanctuary. Built with a clean, modern interface and robust backend API.</b> <br/><br/>
+        <b>🔗 Live Demo:</b> https://siddardha003.github.io/Popcorn_Picks/
+      </p>
+    </td>
+    <td width="30%" align="center">
+      <img src="frontend/love-letter.svg" alt="DearLock Logo" width="160"/>
+    </td>
+  </tr>
+</table
 
 ## ✨ Features
 
@@ -38,32 +39,21 @@ Description: A beautiful, Pinterest-inspired personal productivity application t
 
 ## 🛠️ Tech Stack
 
-### Frontend
+### Frontend & Backend
 - **HTML5** - Semantic markup
 - **CSS3** - Modern styling with custom properties and flexbox/grid
 - **Vanilla JavaScript** - No frameworks, pure ES6+ JavaScript
 - **Responsive Design** - Works on all device sizes
-
-### Backend & Server Requirements
 - **PHP 7.4+** - Server-side logic
 - **MySQL** - Database management
-- **PDO** - Database abstraction layer
 - **RESTful API** - Clean API endpoints
-- **Session-based Authentication** - Secure user sessions
-- **XAMPP/WAMP/LAMP** - Local development environment
 
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- XAMPP, WAMP, or LAMP stack installed
-- Git installed on your system
-- Web browser (Chrome, Firefox, Safari, Edge)
-
 ### Installation
 
 1. **Clone the repository**
-     If you prefer to clone directly into your web server directory:
 
      ```bash
      # Navigate to your web server document root
@@ -81,18 +71,8 @@ Description: A beautiful, Pinterest-inspired personal productivity application t
    - Ensure Apache is running on port 80 (or your preferred port)
    - Ensure MySQL is running on port 3306 (or update config accordingly)
 
-3. **Configure the database**
-   ```bash
-   # Update database credentials in backend/config/database.php
-   # Default settings:
-   # - Host: localhost
-   # - Database: dearlock_db
-   # - Username: root
-   # - Password: (set your MySQL password)
-   # - Port: 3307 (update if different)
-   ```
 
-4. **Create the database**
+3. **Create the database**
    ```bash
    # Option 1: Run the setup script
    # Visit: http://localhost/DearLock/backend/setup.php
@@ -101,62 +81,11 @@ Description: A beautiful, Pinterest-inspired personal productivity application t
    # Import backend/database/schema.sql into your MySQL server
    ```
 
-5. **Access the application**
+4. **Access the application**
    ```
    Frontend: http://localhost/DearLock/frontend/
    API Base: http://localhost/DearLock/backend/api/
    ```
-
-
-## 📁 Project Structure
-
-```
-DearLock/
-├── 📁 frontend/                 # Client-side application
-│   ├── 📁 css/
-│   │   └── style.css           # Main stylesheet
-│   ├── 📁 js/                  # JavaScript modules
-│   │   ├── main.js             # Main navigation
-│   │   ├── login.js            # Authentication
-│   │   ├── signup.js           # User registration
-│   │   ├── dashboard.js        # Dashboard functionality
-│   │   ├── diary.js            # Diary management
-│   │   ├── notes.js            # Notes management
-│   │   ├── todo.js             # Todo management
-│   │   └── profile.js          # Profile management
-│   ├── index.html              # Landing page
-│   ├── login.html              # Login page
-│   ├── signup.html             # Registration page
-│   ├── dashboard.html          # Main dashboard
-│   ├── diary.html              # Diary interface
-│   ├── notes.html              # Notes interface
-│   ├── todo.html               # Todo interface
-│   ├── profile.html            # Profile page
-│   └── love-letter.svg         # App icon
-│
-├── 📁 backend/                  # Server-side application
-│   ├── 📁 api/                 # API endpoints
-│   │   ├── 📁 auth/            # Authentication endpoints
-│   │   │   ├── register.php    # User registration
-│   │   │   ├── login.php       # User login
-│   │   │   ├── logout.php      # User logout
-│   │   │   ├── me.php          # User profile info
-│   │   │   ├── password.php    # Password management
-│   │   │   ├── set-diary-pin.php # Diary PIN setup
-│   │   │   └── verify-diary-pin.php # Diary PIN verification
-│   │   ├── diary.php           # Diary CRUD operations
-│   │   ├── notes.php           # Notes CRUD operations
-│   │   └── todos.php           # Todo CRUD operations
-│   ├── 📁 config/
-│   │   └── database.php        # Database connection
-│   ├── 📁 database/
-│   │   └── schema.sql          # Database structure
-│   ├── api_config.php          # API configuration
-│   ├── setup.php               # Database setup script
-│   └── .htaccess               # Apache URL rewriting
-│
-└── README.md                   # This file
-```
 
 ## 🔧 Configuration
 
@@ -172,109 +101,14 @@ private $password = 'your_mysql_password';
 // Update port if needed (default: 3307)
 ```
 
-## 📚 API Documentation
-
-### Authentication Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | User login |
-| POST | `/api/auth/logout` | User logout |
-| GET | `/api/auth/me` | Get current user info |
-| PUT | `/api/auth/password` | Change password |
-| PUT | `/api/auth/set-diary-pin` | Set diary PIN |
-| POST | `/api/auth/verify-diary-pin` | Verify diary PIN |
-
-### Notes Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/notes` | Get all notes |
-| GET | `/api/notes/{id}` | Get single note |
-| POST | `/api/notes` | Create new note |
-| PUT | `/api/notes/{id}` | Update note |
-| DELETE | `/api/notes/{id}` | Delete note |
-
-### Diary Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/diary` | Get diary entries |
-| GET | `/api/diary/{id}` | Get single entry |
-| POST | `/api/diary` | Create new entry |
-| PUT | `/api/diary/{id}` | Update entry |
-| DELETE | `/api/diary/{id}` | Delete entry |
-
-### Todo Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/todos` | Get all todos |
-| GET | `/api/todos/{id}` | Get single todo |
-| POST | `/api/todos` | Create new todo |
-| PUT | `/api/todos/{id}` | Update todo |
-| DELETE | `/api/todos/{id}` | Delete todo |
-
-
-## 🎨 Design Features
-
-- **Modern UI**: Clean, Pinterest-inspired design
-- **Responsive Layout**: Works on desktop, tablet, and mobile
-- **Custom Color Scheme**: Soft pink and cream theme
-- **Typography**: Inter font family for excellent readability
-- **Card-based Interface**: Clean card layouts for all content
-- **Smooth Interactions**: CSS transitions for better UX
-
-## 🧪 Testing
-
-### Manual Testing
-
-1. **User Registration**: Create a new account
-2. **User Login**: Log in with credentials
-3. **Diary Functionality**: 
-   - Set a diary PIN
-   - Create, edit, and delete diary entries
-4. **Notes Management**: 
-   - Create notes with categories
-   - Pin important notes
-   - Search functionality
-5. **Todo Management**: 
-   - Create todos with priorities
-   - Mark todos as complete
-   - Filter by status
-
-### Test Data
-
-The database schema includes sample data:
-- Test user: `dreamer` / `dreamer@dearlock.com` (password: `dreamy123`)
-- Default categories: Personal, Work, Ideas, Important
-
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## 👨‍💻 Author
 
 **Siddardha** - [GitHub Profile](https://github.com/siddardha003)
 **Sarayu** - [GitHub Profile](https://github.com/msarayu20)
 
-
-## 🙏 Acknowledgments
-
-- Design inspiration from Pinterest and modern note-taking apps
-- Icons and SVG graphics for enhanced user experience
-- PHP and MySQL communities for excellent documentation
-
 ---
 
+<div align="center">
+     
 **DearLock** - Keep your thoughts, dreams, and goals safe in your personal digital sanctuary. 🏰✨
+</div>

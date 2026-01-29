@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = true;
         
         try {
-            const response = await fetch('../backend/api/auth/register.php', {
+            const response = await fetch(`${API_BASE_URL}/auth/register.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

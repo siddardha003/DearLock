@@ -47,7 +47,7 @@ async function checkDiaryAccess() {
     console.log('🔍 Checking diary access...');
     try {
         // Check if user has a diary PIN set
-        const response = await fetch('../backend/api/auth/me.php', {
+        const response = await fetch(`${API_BASE_URL}/auth/me.php`, {
             credentials: 'include' // Include cookies for session
         });
 
@@ -232,7 +232,7 @@ function resetPinSetup() {
 
 async function setDiaryPin(pin) {
     try {
-        const response = await fetch('../backend/api/auth/set-diary-pin.php', {
+        const response = await fetch(`${API_BASE_URL}/auth/set-diary-pin.php`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -294,7 +294,7 @@ function updatePinDisplay() {
 
 async function verifyDiaryPin(pin) {
     try {
-        const response = await fetch('../backend/api/auth/verify-diary-pin.php', {
+        const response = await fetch(`${API_BASE_URL}/auth/verify-diary-pin.php`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -342,7 +342,7 @@ async function loadDiaryEntries() {
     }
 
     try {
-        const response = await fetch('../backend/api/diary.php', {
+        const response = await fetch(`${API_BASE_URL}/diary.php`, {
             credentials: 'include' // Include cookies for session
         });
 
@@ -526,7 +526,7 @@ function searchEntries() {
 // View Entry Modal Functions
 async function viewEntry(entryId) {
     try {
-        const response = await fetch(`../backend/api/diary.php?id=${entryId}`, {
+        const response = await fetch(`${API_BASE_URL}/diary.php?id=${entryId}`, {
             credentials: 'include'
         });
 
@@ -588,7 +588,7 @@ async function openEditEntry(entryId) {
     try {
         // Get entry data if not already available
         if (!currentEntryData || currentEntryData.id !== entryId) {
-            const response = await fetch(`../backend/api/diary.php?id=${entryId}`, {
+            const response = await fetch(`${API_BASE_URL}/diary.php?id=${entryId}`, {
                 credentials: 'include'
             });
 
@@ -631,7 +631,7 @@ function closeEditModal() {
 
 async function updateEntry(entryId, content) {
     try {
-        const response = await fetch('../backend/api/diary.php', {
+        const response = await fetch(`${API_BASE_URL}/diary.php`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -673,7 +673,7 @@ async function confirmDelete() {
     if (!currentEntryId) return;
 
     try {
-        const response = await fetch('../backend/api/diary.php', {
+        const response = await fetch(`${API_BASE_URL}/diary.php`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -752,7 +752,7 @@ async function submitDiaryEntry(content) {
         // Note: title, mood and weather are not stored in simplified database schema
         console.log('📝 Creating entry:', { content, entry_date: entryData.entry_date });
 
-        const response = await fetch('../backend/api/diary.php', {
+        const response = await fetch(`${API_BASE_URL}/diary.php`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
