@@ -20,7 +20,7 @@ class TodoApp {
   async checkAuthentication() {
     console.log('Checking authentication...');
     try {
-      const response = await fetch('../backend/api/auth/me.php', {
+      const response = await fetch(`${API_BASE_URL}/auth/me.php`, {
         credentials: 'include'
       });
       
@@ -284,7 +284,7 @@ class TodoApp {
       if (this.isEditing) {
         // Update existing todo
         todoData.id = this.editingId;
-        response = await fetch('../backend/api/todos.php', {
+        response = await fetch(`${API_BASE_URL}/todos.php`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -294,7 +294,7 @@ class TodoApp {
         });
       } else {
         // Create new todo
-        response = await fetch('../backend/api/todos.php', {
+        response = await fetch(`${API_BASE_URL}/todos.php`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -324,7 +324,7 @@ class TodoApp {
   async deleteTodo(todoId) {
     if (confirm('Are you sure you want to delete this todo? This action cannot be undone.')) {
       try {
-        const response = await fetch('../backend/api/todos.php', {
+        const response = await fetch(`${API_BASE_URL}/todos.php`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -384,7 +384,7 @@ class TodoApp {
     const newCompletionStatus = !todo.is_completed;
     
     try {
-      const response = await fetch('../backend/api/todos.php', {
+      const response = await fetch(`${API_BASE_URL}/todos.php`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -685,7 +685,7 @@ class TodoApp {
   async loadTodos() {
     console.log('Loading todos from backend...');
     try {
-      const response = await fetch('../backend/api/todos.php', {
+      const response = await fetch(`${API_BASE_URL}/todos.php`, {
         method: 'GET',
         credentials: 'include'
       });

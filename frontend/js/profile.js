@@ -26,7 +26,7 @@ async function loadProfileData() {
         }
         
         // Then fetch updated data from API
-        const response = await fetch('../backend/api/auth/me.php', {
+          const response = await fetch(`${API_BASE_URL}/auth/me.php`, {
             credentials: 'include'
         });
         
@@ -187,7 +187,7 @@ async function saveFontSelection() {
         const fontValue = selectedFont === 'Kalam' ? 'handwritten' : 
                          selectedFont === 'Dancing Script' ? 'calligraphy' : 'inter';
         
-        const response = await fetch('../backend/api/auth/me.php', {
+        const response = await fetch(`${API_BASE_URL}/auth/me.php`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -305,7 +305,7 @@ async function handleEditProfile(e) {
     submitBtn.disabled = true;
     
     try {
-        const response = await fetch('../backend/api/auth/me.php', {
+        const response = await fetch(`${API_BASE_URL}/auth/me.php`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -390,7 +390,7 @@ async function handleChangePassword(e) {
     try {
         console.log('Attempting password change...');
         
-        const response = await fetch('../backend/api/auth/password.php', {
+        const response = await fetch(`${API_BASE_URL}/auth/password.php`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -463,7 +463,7 @@ async function logout() {
     if (confirm('Are you sure you want to sign out?')) {
         try {
             // Call logout API
-            await fetch('../backend/api/auth/logout.php', {
+            await fetch(`${API_BASE_URL}/auth/logout.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -505,7 +505,7 @@ async function handleChangeDiaryPin(e) {
     submitBtn.disabled = true;
     
     try {
-        const response = await fetch('../backend/api/auth/change-diary-pin.php', {
+        const response = await fetch(`${API_BASE_URL}/auth/change-diary-pin.php`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -575,7 +575,7 @@ async function forgotDiaryPin() {
     showMessage('Sending OTP to your email...', 'success');
     
     try {
-        const response = await fetch('../backend/api/auth/send-diary-pin-otp.php', {
+        const response = await fetch(`${API_BASE_URL}/auth/send-diary-pin-otp.php`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -647,7 +647,7 @@ async function handleOtpVerification(e) {
     submitBtn.disabled = true;
     
     try {
-        const response = await fetch('../backend/api/auth/verify-diary-pin-otp.php', {
+        const response = await fetch(`${API_BASE_URL}/auth/verify-diary-pin-otp.php`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -701,7 +701,7 @@ async function resendOtp() {
     showMessage('Resending OTP...', 'success');
     
     try {
-        const response = await fetch('../backend/api/auth/send-diary-pin-otp.php', {
+        const response = await fetch(`${API_BASE_URL}/auth/send-diary-pin-otp.php`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -43,7 +43,7 @@ function loadUserData() {
 async function loadDashboardStats() {
     try {
         // Load notes count
-        const notesResponse = await fetch('../backend/api/notes.php');
+        const notesResponse = await fetch(`${API_BASE_URL}/notes.php`);
         if (notesResponse.ok) {
             const notesResult = await notesResponse.json();
             if (notesResult.success) {
@@ -52,7 +52,7 @@ async function loadDashboardStats() {
         }
 
         // Load todos count
-        const todosResponse = await fetch('../backend/api/todos.php');
+        const todosResponse = await fetch(`${API_BASE_URL}/todos.php`);
         if (todosResponse.ok) {
             const todosResult = await todosResponse.json();
             if (todosResult.success) {

@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = true;
         
         try {
-            const response = await fetch('../backend/api/auth/login.php', {
+            const response = await fetch(`${API_BASE_URL}/auth/login.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
