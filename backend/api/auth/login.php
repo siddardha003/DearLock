@@ -63,9 +63,11 @@ try {
 try {
     // Find user by username or email
     $query = "SELECT id, username, email, password_hash, full_name, profile_icon 
-              FROM users WHERE username = :login OR email = :login";
+              FROM users WHERE username = :login1 OR email = :login2";
     $stmt = $db->prepare($query);
-    $stmt->bindParam(':login', $input['username']);
+    $loginValue = $input['username'];
+    $stmt->bindParam(':login1', $loginValue);
+    $stmt->bindParam(':login2', $loginValue);
     $stmt->execute();
     
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
