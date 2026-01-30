@@ -37,10 +37,11 @@ try {
         'method' => $_SERVER['REQUEST_METHOD'],
         'environment' => [
             'APP_ENV' => $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?? 'not set',
-            'DB_HOST' => $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?? 'not set',
-            'DB_NAME' => $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?? 'not set', 
-            'DB_USER' => $_ENV['DB_USER'] ?? getenv('DB_USER') ?? 'not set',
-            'DB_PASS' => isset($_ENV['DB_PASS']) || getenv('DB_PASS') ? 'set' : 'not set'
+            'MYSQLHOST' => $_ENV['MYSQLHOST'] ?? getenv('MYSQLHOST') ?? 'not set',
+            'MYSQLDATABASE' => $_ENV['MYSQLDATABASE'] ?? getenv('MYSQLDATABASE') ?? 'not set', 
+            'MYSQLUSER' => $_ENV['MYSQLUSER'] ?? getenv('MYSQLUSER') ?? 'not set',
+            'MYSQLPASSWORD' => isset($_ENV['MYSQLPASSWORD']) || getenv('MYSQLPASSWORD') ? 'set' : 'not set',
+            'MYSQLPORT' => $_ENV['MYSQLPORT'] ?? getenv('MYSQLPORT') ?? 'not set'
         ]
     ];
     

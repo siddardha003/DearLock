@@ -7,15 +7,15 @@ class Database {
     private $conn;
     
     public function __construct() {
-        // Use environment variables in production, fallback to local values
-        $this->host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?? $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL') ?? 'localhost';
-        $this->db_name = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?? 'dearlock_db';
-        $this->username = $_ENV['DB_USER'] ?? getenv('DB_USER') ?? 'root';
-        $this->password = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?? '';
+        // Railway uses specific MySQL variable names, fallback to standard names, then local values
+        $this->host = $_ENV['MYSQLHOST'] ?? getenv('MYSQLHOST') ?? $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?? 'localhost';
+        $this->db_name = $_ENV['MYSQLDATABASE'] ?? getenv('MYSQLDATABASE') ?? $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?? 'dearlock_db';
+        $this->username = $_ENV['MYSQLUSER'] ?? getenv('MYSQLUSER') ?? $_ENV['DB_USER'] ?? getenv('DB_USER') ?? 'root';
+        $this->password = $_ENV['MYSQLPASSWORD'] ?? getenv('MYSQLPASSWORD') ?? $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?? '';
         
-        // Handle Railway's DATABASE_URL format if present
+        // Handle Railway's DATABASE_URL format if present (backup)
         $database_url = $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL');
-        if ($database_url) {
+        if ($database_url && !$_ENV['MYSQLHOST']) {
             $url_parts = parse_url($database_url);
             if ($url_parts) {
                 $this->host = $url_parts['host'] ?? $this->host;
@@ -33,8 +33,8 @@ class Database {
         $this->conn = null;
         
         try {
-            // Add port support for Railway
-            $port = $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?? 3306;
+            // Add port support for Railway (Railway MySQL usually uses port 3306)
+            $port = $_ENV['MYSQLPORT'] ?? getenv('MYSQLPORT') ?? $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?? 3306;
             
             $dsn = "mysql:host=" . $this->host . ";port=" . $port . ";dbname=" . $this->db_name . ";charset=utf8mb4";
             
