@@ -102,9 +102,9 @@ private $password = 'your_mysql_password';
 ```
 
 ## 👨‍💻 Author
-
-**Sarayu** - [GitHub Profile](https://github.com/msarayu20)<br/>
+**Sarayu** - [GitHub Profile](https://github.com/msarayu20) <br/>
 **Siddardha** - [GitHub Profile](https://github.com/siddardha003)
+
 ---
 
 <div align="center">
