@@ -1,5 +1,5 @@
 {
-    "name": "dearlock-backend",
+    "name": "siddardha/dearlock",
     "description": "DearLock Personal Sanctuary Backend API",
     "type": "project",
     "require": {
