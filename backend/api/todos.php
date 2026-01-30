@@ -1,11 +1,29 @@
 <?php
 // Todos API endpoint
-require_once __DIR__ . '/../api_config.php';
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
+
+try {
+    require_once __DIR__ . '/../api_config.php';
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Configuration error', 'error' => $e->getMessage()]);
+    exit;
+}
 
 Auth::requireAuth();
 
-$database = new Database();
-$db = $database->connect();
+try {
+    $database = new Database();
+    $db = $database->connect();
+    if (!$db) {
+        error_log("Database connection failed in todos.php");
+        ApiResponse::error('Database connection failed', 500);
+    }
+} catch (Exception $e) {
+    error_log("Database error in todos.php: " . $e->getMessage());
+    ApiResponse::error('Database error', 500);
+}
 $userId = Auth::getCurrentUserId();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
