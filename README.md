@@ -103,7 +103,7 @@ private $password = 'your_mysql_password';
 
 ## 👨‍💻 Author
 
-**Siddardha** - [GitHub Profile](https://github.com/siddardha003)
+**Siddardha** - [GitHub Profile](https://github.com/siddardha003)<br/>
 **Sarayu** - [GitHub Profile](https://github.com/msarayu20)
 
 ---

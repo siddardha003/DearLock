@@ -1,1 +1,1 @@
-web: php -S 0.0.0.0:$PORT backend/api_config.php
+web: cd backend && php -S 0.0.0.0:$PORT -t .
