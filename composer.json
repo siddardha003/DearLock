@@ -3,6 +3,6 @@
     "description": "DearLock Personal Sanctuary Backend API",
     "type": "project",
     "require": {
-        "php": "^8.1"
+        "php": "^8.2"
     }
 }
