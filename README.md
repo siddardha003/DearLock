@@ -5,7 +5,7 @@
     <td width="70%">
       <p>
         <b>A beautiful, Pinterest-inspired personal productivity application that combines diary entries, notes, and todo management in one secure sanctuary. Built with a clean, modern interface and robust backend API.</b> <br/><br/>
-        <b>🔗 Live Demo:</b> https://siddardha003.github.io/Popcorn_Picks/
+        <b>🔗 Live Demo:</b> https://dearlock.netlify.app/
       </p>
     </td>
     <td width="30%" align="center">
@@ -103,9 +103,8 @@ private $password = 'your_mysql_password';
 
 ## 👨‍💻 Author
 
-**Siddardha** - [GitHub Profile](https://github.com/siddardha003)<br/>
-**Sarayu** - [GitHub Profile](https://github.com/msarayu20)
-
+**Sarayu** - [GitHub Profile](https://github.com/msarayu20)<br/>
+**Siddardha** - [GitHub Profile](https://github.com/siddardha003)
 ---
 
 <div align="center">
