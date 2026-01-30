@@ -1,0 +1,11 @@
+{
+    "name": "dearlock-backend",
+    "description": "DearLock Personal Sanctuary Backend API",
+    "type": "project",
+    "require": {
+        "php": ">=7.4.0"
+    },
+    "scripts": {
+        "start": "php -S 0.0.0.0:$PORT"
+    }
+}

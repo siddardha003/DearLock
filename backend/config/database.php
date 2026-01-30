@@ -1,10 +1,21 @@
 <?php
 class Database {
-    private $host = 'localhost';
-    private $db_name = 'dearlock_db';
-    private $username = 'root'; // Change as needed
-    private $password = ''; // Your phpMyAdmin password
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
     private $conn;
+    
+    public function __construct() {
+        // Use environment variables in production, fallback to local values
+        $this->host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?? 'localhost';
+        $this->db_name = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?? 'dearlock_db';
+        $this->username = $_ENV['DB_USER'] ?? getenv('DB_USER') ?? 'root';
+        $this->password = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?? '';
+        
+        // Log environment detection (remove in production)
+        error_log("Database Config - Host: " . $this->host . ", DB: " . $this->db_name);
+    }
     
     public function connect() {
         $this->conn = null;
