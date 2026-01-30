@@ -3,6 +3,10 @@
     "description": "DearLock Personal Sanctuary Backend API",
     "type": "project",
     "require": {
-        "php": "^8.2"
+        "php": "^8.2",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*"
     }
 }

@@ -1,1 +1,1 @@
-web: cd backend && php -S 0.0.0.0:$PORT -t .
+web: cd backend && php -d extension=pdo_mysql.so -S 0.0.0.0:$PORT -t .
