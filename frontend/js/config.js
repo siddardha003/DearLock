@@ -7,7 +7,7 @@ const API_CONFIG = {
     },
     // Production (Netlify + backend hosting)
     production: {
-        baseUrl: 'https://your-backend-url.com/api', // You'll update this after backend deployment
+        baseUrl: 'https://dearlock-production.up.railway.app/api',
         cors: true
     }
 };

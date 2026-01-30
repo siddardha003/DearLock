@@ -4,17 +4,29 @@
 ob_start();
 
 // Start session with secure settings
+$isProduction = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?? 'development';
 session_start([
     'cookie_lifetime' => 86400, // 24 hours
-    'cookie_secure' => false,   // Set to true in production with HTTPS
+    'cookie_secure' => $isProduction === 'production',   // Enable secure cookies in production
     'cookie_httponly' => true,
-    'cookie_samesite' => 'Lax', // Changed from Strict to Lax for better compatibility
-    'cookie_path' => '/'        // Ensure path is set to root
+    'cookie_samesite' => 'None', // Required for cross-origin requests
+    'cookie_path' => '/'
 ]);
 
 // Set headers for API responses
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost');
+$allowedOrigins = [
+    'http://localhost',
+    'http://127.0.0.1',
+    'https://dearlock.netlify.app'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    header('Access-Control-Allow-Origin: https://dearlock.netlify.app');
+}
+
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
