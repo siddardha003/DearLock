@@ -13,9 +13,10 @@ $sessionConfig = [
     'cookie_path' => '/'
 ];
 
-// Only use secure/samesite settings if in production with HTTPS
+// Only use secure/samesite settings if in production
 if ($isProduction === 'production') {
-    $sessionConfig['cookie_secure'] = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    // Railway uses HTTPS by default, so always set secure in production
+    $sessionConfig['cookie_secure'] = true;
     $sessionConfig['cookie_samesite'] = 'None'; // Required for cross-origin requests
 }
 
