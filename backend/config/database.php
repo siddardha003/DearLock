@@ -8,9 +8,14 @@ class Database {
     private $conn;
     
     public function __construct() {
-        // Try Railway's MYSQL_URL or DATABASE_URL first (most reliable)
-        $mysql_url = $_ENV['MYSQL_URL'] ?? getenv('MYSQL_URL') ?? $_ENV['MYSQL_PRIVATE_URL'] ?? getenv('MYSQL_PRIVATE_URL');
-        $database_url = $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL') ?? $_ENV['DATABASE_PRIVATE_URL'] ?? getenv('DATABASE_PRIVATE_URL');
+        // Try Railway's MySQL URLs first (most reliable for cross-project connections)
+        $mysql_url = $_ENV['MYSQL_PUBLIC_URL'] ?? getenv('MYSQL_PUBLIC_URL') 
+                  ?? $_ENV['MYSQL_URL'] ?? getenv('MYSQL_URL') 
+                  ?? $_ENV['MYSQL_PRIVATE_URL'] ?? getenv('MYSQL_PRIVATE_URL');
+        
+        $database_url = $_ENV['DATABASE_PUBLIC_URL'] ?? getenv('DATABASE_PUBLIC_URL')
+                     ?? $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL') 
+                     ?? $_ENV['DATABASE_PRIVATE_URL'] ?? getenv('DATABASE_PRIVATE_URL');
         
         // Parse URL if available
         $connection_url = $mysql_url ?: $database_url;
