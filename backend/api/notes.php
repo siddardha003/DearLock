@@ -1,29 +1,11 @@
 <?php
 // Notes API endpoint
-error_reporting(E_ALL);
-ini_set('log_errors', 1);
-
-try {
-    require_once __DIR__ . '/../api_config.php';
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Configuration error', 'error' => $e->getMessage()]);
-    exit;
-}
+require_once __DIR__ . '/../api_config.php';
 
 Auth::requireAuth();
 
-try {
-    $database = new Database();
-    $db = $database->connect();
-    if (!$db) {
-        error_log("Database connection failed in notes.php");
-        ApiResponse::error('Database connection failed', 500);
-    }
-} catch (Exception $e) {
-    error_log("Database error in notes.php: " . $e->getMessage());
-    ApiResponse::error('Database error', 500);
-}
+$database = new Database();
+$db = $database->connect();
 $userId = Auth::getCurrentUserId();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {

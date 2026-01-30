@@ -10,9 +10,7 @@ $isProduction = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?? 'development';
 $sessionConfig = [
     'cookie_lifetime' => 86400, // 24 hours
     'cookie_httponly' => true,
-    'cookie_path' => '/',
-    'use_cookies' => 1,
-    'use_only_cookies' => 1,
+    'cookie_path' => '/'
 ];
 
 // Only use secure/samesite settings if in production
@@ -20,14 +18,10 @@ if ($isProduction === 'production') {
     // Railway uses HTTPS by default, so always set secure in production
     $sessionConfig['cookie_secure'] = true;
     $sessionConfig['cookie_samesite'] = 'None'; // Required for cross-origin requests
-    
-    // Use a custom session name for better tracking
-    $sessionConfig['name'] = 'DEARLOCK_SESSION';
 }
 
 try {
     session_start($sessionConfig);
-    error_log("Session started. Session ID: " . session_id() . ", User ID: " . ($_SESSION['user_id'] ?? 'not set'));
 } catch (Exception $e) {
     error_log("Session start error: " . $e->getMessage());
     // Continue without session for API endpoints that don't require it
@@ -90,21 +84,15 @@ class ApiResponse {
 // Authentication helper class
 class Auth {
     public static function requireAuth() {
-        // Log session state for debugging
-        error_log("Auth check - Session ID: " . session_id() . ", User ID: " . ($_SESSION['user_id'] ?? 'not set'));
-        error_log("Session data: " . json_encode($_SESSION));
-        
         // Check if session exists
         if (!isset($_SESSION['user_id'])) {
-            error_log("Authentication failed - no user_id in session");
-            ApiResponse::error('Authentication required. Please log in again.', 401);
+            ApiResponse::error('Authentication required', 401);
         }
         
         // Check for session timeout (optional - 24 hours)
         if (isset($_SESSION['last_activity'])) {
             $timeout = 24 * 60 * 60; // 24 hours
             if (time() - $_SESSION['last_activity'] > $timeout) {
-                error_log("Session expired for user: " . $_SESSION['user_id']);
                 session_destroy();
                 ApiResponse::error('Session expired', 401);
             }
@@ -126,8 +114,6 @@ class Auth {
         $_SESSION['user_id'] = $user_id;
         $_SESSION['username'] = $username;
         $_SESSION['last_activity'] = time();
-        error_log("User logged in - ID: $user_id, Session ID: " . session_id());
-        error_log("Session after login: " . json_encode($_SESSION));
     }
     
     public static function logout() {

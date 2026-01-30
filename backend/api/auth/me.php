@@ -1,35 +1,17 @@
 <?php
 // Profile endpoints (me, update profile)
-error_reporting(E_ALL);
-ini_set('log_errors', 1);
+// Suppress errors to prevent HTML output
+error_reporting(0);
+ini_set('display_errors', 0);
 
-// Set content type first
-header('Content-Type: application/json');
-
-try {
-    require_once __DIR__ . '/../../api_config.php';
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Configuration error',
-        'error' => $e->getMessage()
-    ]);
-    exit;
-}
+require_once __DIR__ . '/../../api_config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Get current user profile
     Auth::requireAuth();
     
-    try {
-        $database = new Database();
-        $db = $database->connect();
-        
-        if (!$db) {
-            error_log("Database connection failed in me.php");
-            ApiResponse::error('Database connection failed', 500);
-        }
+    $database = new Database();
+    $db = $database->connect();
     
     try {
         $query = "SELECT id, username, email, full_name, profile_icon, font_family, created_at, 
@@ -48,11 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             ApiResponse::error('User not found', 404);
         }
     } catch (PDOException $e) {
-        error_log('Profile retrieval error: ' . $e->getMessage());
-        ApiResponse::error('Failed to retrieve profile: ' . $e->getMessage(), 500);
-    } catch (Exception $e) {
-        error_log('General error in profile retrieval: ' . $e->getMessage());
-        ApiResponse::error('An error occurred: ' . $e->getMessage(), 500);
+        ApiResponse::error('Failed to retrieve profile', 500);
     }
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {

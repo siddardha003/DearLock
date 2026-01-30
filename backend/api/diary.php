@@ -1,15 +1,6 @@
 <?php
 // Diary API endpoint - Secure diary entries with PIN protection
-error_reporting(E_ALL);
-ini_set('log_errors', 1);
-
-try {
-    require_once __DIR__ . '/../api_config.php';
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Configuration error', 'error' => $e->getMessage()]);
-    exit;
-}
+require_once __DIR__ . '/../api_config.php';
 
 Auth::requireAuth();
 
@@ -18,18 +9,8 @@ if (!isset($_SESSION['diary_unlocked']) || $_SESSION['diary_unlocked'] !== true)
     ApiResponse::error('Diary is locked. Please enter your PIN first.', 403);
 }
 
-try {
-    $database = new Database();
-    $db = $database->connect();
-    if (!$db) {
-        error_log("Database connection failed in diary.php");
-        ApiResponse::error('Database connection failed', 500);
-    }
-} catch (Exception $e) {
-    error_log("Database error in diary.php: " . $e->getMessage());
-    ApiResponse::error('Database error', 500);
-}
-
+$database = new Database();
+$db = $database->connect();
 $userId = Auth::getCurrentUserId();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
