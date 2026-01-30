@@ -20,7 +20,7 @@ $health = [
 
 // Test database connection
 try {
-    require_once __DIR__ . '/../../config/database.php';
+    require_once __DIR__ . '/../config/database.php';
     $database = new Database();
     $db = $database->connect();
     
@@ -28,6 +28,14 @@ try {
         $health['database'] = 'connected';
         $testQuery = $db->query("SELECT 1 as test");
         $health['database_test'] = $testQuery ? 'passed' : 'failed';
+        
+        // Test if users table exists
+        try {
+            $tableQuery = $db->query("SHOW TABLES LIKE 'users'");
+            $health['users_table'] = $tableQuery && $tableQuery->rowCount() > 0 ? 'exists' : 'missing';
+        } catch (Exception $e) {
+            $health['users_table'] = 'error: ' . $e->getMessage();
+        }
     } else {
         $health['database'] = 'failed';
     }

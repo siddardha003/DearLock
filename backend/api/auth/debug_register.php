@@ -93,6 +93,8 @@ try {
         $input = json_decode($raw_input, true);
         $debug_info['parsed_input'] = $input;
         $debug_info['json_error'] = json_last_error_msg();
+    } else {
+        $debug_info['input_note'] = 'No input data (GET request)';
     }
     
     echo json_encode([
