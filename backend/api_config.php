@@ -5,13 +5,26 @@ ob_start();
 
 // Start session with secure settings
 $isProduction = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?? 'development';
-session_start([
+
+// More flexible session configuration for Railway
+$sessionConfig = [
     'cookie_lifetime' => 86400, // 24 hours
-    'cookie_secure' => $isProduction === 'production',   // Enable secure cookies in production
     'cookie_httponly' => true,
-    'cookie_samesite' => 'None', // Required for cross-origin requests
     'cookie_path' => '/'
-]);
+];
+
+// Only use secure/samesite settings if in production with HTTPS
+if ($isProduction === 'production') {
+    $sessionConfig['cookie_secure'] = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    $sessionConfig['cookie_samesite'] = 'None'; // Required for cross-origin requests
+}
+
+try {
+    session_start($sessionConfig);
+} catch (Exception $e) {
+    error_log("Session start error: " . $e->getMessage());
+    // Continue without session for API endpoints that don't require it
+}
 
 // Set headers for API responses
 $allowedOrigins = [
