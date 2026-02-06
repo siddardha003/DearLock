@@ -80,9 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         
         $stmt = $db->prepare($query);
         $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':title', $data['title'] ?? 'My Thoughts');
-        $stmt->bindParam(':content', $data['content']);
-        $stmt->bindParam(':entry_date', $data['entry_date']);
+        $stmt->bindValue(':title', $data['title'] ?? 'My Thoughts');
+        $stmt->bindValue(':content', $data['content']);
+        $stmt->bindValue(':entry_date', $data['entry_date']);
         
         $stmt->execute();
         $entryId = $db->lastInsertId();
